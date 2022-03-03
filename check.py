@@ -13,7 +13,7 @@ class TestCase:
         self.tmp_result_file = self.result_file.parent.parent / 'tmp' / f'{name}.tmp'
 
     def run(self):
-        subprocess.call(self.base_dir / '..' / '..' / 'build' / 'bin' / 'main', stdin=open(self.filename), stdout=open(self.tmp_result_file, 'w'), stderr=open('/dev/null'))
+        subprocess.call(self.base_dir / '..' / '..' / 'dbtrain-lab' / 'build' / 'bin' / 'main', stdin=open(self.filename), stdout=open(self.tmp_result_file, 'w'), stderr=open('/dev/null'))
 
     def check(self) -> bool:
         with open(self.result_file) as result_file:
