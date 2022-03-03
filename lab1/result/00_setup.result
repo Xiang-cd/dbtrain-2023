@@ -1,0 +1,44 @@
+SUCCESS
+
+SUCCESS
+
+FAILURE
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+Tables
+t_basic
+t_basic2
+
+Name | Type | Length
+id | INT | 4
+age | INT | 4
+name | STRING | 10
+score | FLOAT | 8
+
+FAILURE
+
+Tables
+t_basic
+t_basic2
+
+SUCCESS
+
+Tables
+t_basic
+
+FAILURE
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+Bye
