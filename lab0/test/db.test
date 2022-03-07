@@ -1,9 +1,0 @@
-create database db;
-create database db1;
-create database db2;
-
-show databases;
-
-drop database db;
-drop database db1;
-drop database db2;

@@ -1,44 +1,73 @@
+-- drop database if exists dbtrain_test;
 SUCCESS
 
+-- create database dbtrain_test;
 SUCCESS
 
+-- create database dbtrain_test_2;
+SUCCESS
+
+-- create database dbtrain_test;
 FAILURE
 
+-- use dbtrain_test;
 SUCCESS
 
+-- use dbtrain_test_2;
 SUCCESS
 
+-- use dbtrain_test;
 SUCCESS
 
+-- drop database dbtrain_test_2;
+SUCCESS
+
+-- create table t_basic(id int, age int, name char(10), score float);
+SUCCESS
+
+-- create table t_basic_2(id int, age int, name char(10), score float);
+SUCCESS
+
+-- show tables;
 Tables
 t_basic
-t_basic2
+t_basic_2
 
+-- desc t_basic;
 Name | Type | Length
 id | INT | 4
 age | INT | 4
 name | STRING | 10
 score | FLOAT | 8
 
+-- create table t_basic(id int, age int, name char(10), score float);
 FAILURE
 
+-- show tables;
 Tables
 t_basic
-t_basic2
+t_basic_2
 
+-- drop table t_basic_2;
 SUCCESS
 
+-- show tables;
 Tables
 t_basic
 
+-- drop table not_exists;
 FAILURE
 
+-- insert into t_basic values(1, 1, 'a', 1.0);
 SUCCESS
 
+-- insert into t_basic values(2, 2, 'b', 2.0);
 SUCCESS
 
+-- insert into t_basic values(3, 3, 'c', 3.0), (4, 4, 'd', 4.0);
 SUCCESS
 
+-- insert into t_basic values(5, 5, 'e', 5.5), (6, 6, 'f', 6.6), (7, 7, 'g', 7.7);
 SUCCESS
 
 Bye
