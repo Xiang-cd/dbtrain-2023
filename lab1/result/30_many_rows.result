@@ -1,40 +1,40 @@
--- use dbtrain_test;
+-- 1.use dbtrain_test;
 SUCCESS
 
--- create table persons(id int, first_name varchar(20), last_name varchar(20), temperature float);
+-- 2.create table persons(id int, first_name varchar(20), last_name varchar(20), temperature float);
 SUCCESS
 
--- insert
+-- 3.insert
 SUCCESS
 
--- insert
+-- 4.insert
 SUCCESS
 
--- insert
+-- 5.insert
 SUCCESS
 
--- insert
+-- 6.insert
 SUCCESS
 
--- insert
+-- 7.insert
 SUCCESS
 
--- insert
+-- 8.insert
 SUCCESS
 
--- insert
+-- 9.insert
 SUCCESS
 
--- insert
+-- 10.insert
 SUCCESS
 
--- insert
+-- 11.insert
 SUCCESS
 
--- insert
+-- 12.insert
 SUCCESS
 
--- select * from persons;
+-- 13.select * from persons;
 id | first_name | last_name | temperature
 201 | 12345678901234567890 | 09876543210987654321 | 36.3
 202 | 12345678901234567890 | 09876543210987654321 | 36.3
@@ -1037,10 +1037,10 @@ id | first_name | last_name | temperature
 199 | 12345678901234567890 | 09876543210987654321 | 36.3
 200 | 12345678901234567890 | 09876543210987654321 | 36.3
 
--- delete from persons where id > 300;
+-- 14.delete from persons where id > 300;
 SUCCESS
 
--- select * from persons;
+-- 15.select * from persons;
 id | first_name | last_name | temperature
 201 | 12345678901234567890 | 09876543210987654321 | 36.3
 202 | 12345678901234567890 | 09876543210987654321 | 36.3
@@ -1342,10 +1342,10 @@ id | first_name | last_name | temperature
 199 | 12345678901234567890 | 09876543210987654321 | 36.3
 200 | 12345678901234567890 | 09876543210987654321 | 36.3
 
--- insert
+-- 16.insert
 SUCCESS
 
--- select * from persons;
+-- 17.select * from persons;
 id | first_name | last_name | temperature
 201 | 12345678901234567890 | 09876543210987654321 | 36.3
 202 | 12345678901234567890 | 09876543210987654321 | 36.3

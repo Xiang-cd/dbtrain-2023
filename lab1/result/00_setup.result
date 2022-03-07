@@ -1,76 +1,76 @@
--- drop database if exists dbtrain_test;
+-- 1.drop database if exists dbtrain_test;
 SUCCESS
 
--- create database dbtrain_test;
+-- 2.create database dbtrain_test;
 SUCCESS
 
--- create database dbtrain_test_2;
+-- 3.create database dbtrain_test_2;
 SUCCESS
 
--- create database dbtrain_test;
+-- 4.create database dbtrain_test;
 FAILURE
 
--- use dbtrain_test;
+-- 5.use dbtrain_test;
 SUCCESS
 
--- use dbtrain_test_2;
+-- 6.use dbtrain_test_2;
 SUCCESS
 
--- use dbtrain_test;
+-- 7.use dbtrain_test;
 SUCCESS
 
--- drop database dbtrain_test_2;
+-- 8.drop database dbtrain_test_2;
 SUCCESS
 
--- create table t_basic(id int, age int, name char(10), score float);
+-- 9.create table t_basic(id int, age int, name char(10), score float);
 SUCCESS
 
--- create table t_basic_2(id int, age int, name char(10), score float);
+-- 10.create table t_basic_2(id int, age int, name char(10), score float);
 SUCCESS
 
--- show tables;
+-- 11.show tables;
 Tables
 t_basic
 t_basic_2
 
--- desc t_basic;
+-- 12.desc t_basic;
 Name | Type | Length
 id | INT | 4
 age | INT | 4
 name | STRING | 10
 score | FLOAT | 8
 
--- create table t_basic(id int, age int, name char(10), score float);
+-- 13.create table t_basic(id int, age int, name char(10), score float);
 FAILURE
 
--- show tables;
+-- 14.show tables;
 Tables
 t_basic
 t_basic_2
 
--- drop table t_basic_2;
+-- 15.drop table t_basic_2;
 SUCCESS
 
--- show tables;
+-- 16.show tables;
 Tables
 t_basic
 
--- drop table not_exists;
+-- 17.drop table not_exists;
 FAILURE
 
--- insert into t_basic values(1, 1, 'a', 1.0);
+-- 18.insert into t_basic values(1, 1, 'a', 1.0);
 SUCCESS
 
--- insert into t_basic values(2, 2, 'b', 2.0);
+-- 19.insert into t_basic values(2, 2, 'b', 2.0);
 SUCCESS
 
--- insert into t_basic values(3, 3, 'c', 3.0), (4, 4, 'd', 4.0);
+-- 20.insert into t_basic values(3, 3, 'c', 3.0), (4, 4, 'd', 4.0);
 SUCCESS
 
--- insert into t_basic values(5, 5, 'e', 5.5), (6, 6, 'f', 6.6), (7, 7, 'g', 7.7);
+-- 21.insert into t_basic values(5, 5, 'e', 5.5), (6, 6, 'f', 6.6), (7, 7, 'g', 7.7);
 SUCCESS
 
--- select * from t_basic;
+-- 22.select * from t_basic;
 id | age | name | score
 1 | 1 | a | 1
 2 | 2 | b | 2

@@ -1,61 +1,61 @@
--- use db_not_exists;
+-- 1.use db_not_exists;
 FAILURE
 
--- use dbtrain_test;
+-- 2.use dbtrain_test;
 SUCCESS
 
--- create table table_error(id int, id int);
+-- 3.create table table_error(id int, id int);
 FAILURE
 
--- drop table table_not_exists;
+-- 4.drop table table_not_exists;
 FAILURE
 
--- select * from table_not_exists;
+-- 5.select * from table_not_exists;
 FAILURE
 
--- select * from t_basic where column_not_exists = 1;
+-- 6.select * from t_basic where column_not_exists = 1;
 FAILURE
 
--- select * from t_basic where name > 1;
+-- 7.select * from t_basic where name > 1;
 FAILURE
 
--- insert into table_not_exists values(1, 2);
+-- 8.insert into table_not_exists values(1, 2);
 FAILURE
 
--- insert into t_basic values(1, 2);
+-- 9.insert into t_basic values(1, 2);
 FAILURE
 
--- insert into t_basic values(1, 2, 3, 4);
+-- 10.insert into t_basic values(1, 2, 3, 4);
 FAILURE
 
--- insert into t_basic values(9, 9, 'i', 9.9), (10, 10, 10, 10), (11, 11, 11, 11);
+-- 11.insert into t_basic values(9, 9, 'i', 9.9), (10, 10, 10, 10), (11, 11, 11, 11);
 FAILURE
 
--- insert into t_basic values(10, 10, '12345678901', 10);
+-- 12.insert into t_basic values(10, 10, '12345678901', 10);
 FAILURE
 
--- update table_not_exists set age = 1;
+-- 13.update table_not_exists set age = 1;
 FAILURE
 
--- update t_basic set column_not_exists = 1 where id = 1;
+-- 14.update t_basic set column_not_exists = 1 where id = 1;
 FAILURE
 
--- update t_basic set age = 2 where column_not_exists = 'a';
+-- 15.update t_basic set age = 2 where column_not_exists = 'a';
 FAILURE
 
--- update t_basic set age = 'a' where id = 1;
+-- 16.update t_basic set age = 'a' where id = 1;
 FAILURE
 
--- update t_basic set age = 2 where id = 'a';
+-- 17.update t_basic set age = 2 where id = 'a';
 FAILURE
 
--- delete from table_not_exists where id = 1;
+-- 18.delete from table_not_exists where id = 1;
 FAILURE
 
--- delete from t_basic where column_not_exists = 'a';
+-- 19.delete from t_basic where column_not_exists = 'a';
 FAILURE
 
--- delete from t_basic where id = 'a';
+-- 20.delete from t_basic where id = 'a';
 FAILURE
 
 Bye
