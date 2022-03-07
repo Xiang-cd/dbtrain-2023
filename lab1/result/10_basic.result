@@ -25,14 +25,93 @@ id | age | name | score
 7 | 7 | g | 7.7
 8 | 8 | h | 8.8
 
--- delete from t_basic where id = 8;
+-- select * from t_basic where id = 1;
+id | age | name | score
+1 | 1 | a | 1
+
+-- select * from t_basic where age < 3;
+id | age | name | score
+1 | 1 | a | 1
+2 | 2 | b | 2
+
+-- select * from t_basic where name = 'g';
+id | age | name | score
+7 | 7 | g | 7.7
+
+-- select * from t_basic where score > 5.4;
+id | age | name | score
+5 | 5 | e | 5.5
+6 | 6 | f | 6.6
+7 | 7 | g | 7.7
+8 | 8 | h | 8.8
+
+-- select * from t_basic where id > 10;
+id | age | name | score
+
+-- update t_basic set name = 'cc' where name = 'c';
 SUCCESS
 
 -- select * from t_basic;
 id | age | name | score
 1 | 1 | a | 1
 2 | 2 | b | 2
-3 | 3 | c | 3
+3 | 3 | cc | 3
+4 | 4 | d | 4
+5 | 5 | e | 5.5
+6 | 6 | f | 6.6
+7 | 7 | g | 7.7
+8 | 8 | h | 8.8
+
+-- update t_basic set name = 'cc' where id < 3;
+SUCCESS
+
+-- select * from t_basic;
+id | age | name | score
+1 | 1 | cc | 1
+2 | 2 | cc | 2
+3 | 3 | cc | 3
+4 | 4 | d | 4
+5 | 5 | e | 5.5
+6 | 6 | f | 6.6
+7 | 7 | g | 7.7
+8 | 8 | h | 8.8
+
+-- update t_basic set score = 66.6, name = 'ccc' where id < 4;
+SUCCESS
+
+-- select * from t_basic;
+id | age | name | score
+1 | 1 | ccc | 66.6
+2 | 2 | ccc | 66.6
+3 | 3 | ccc | 66.6
+4 | 4 | d | 4
+5 | 5 | e | 5.5
+6 | 6 | f | 6.6
+7 | 7 | g | 7.7
+8 | 8 | h | 8.8
+
+-- update t_basic set age = 8 where id > 10;
+SUCCESS
+
+-- select * from basic;
+id | age | name | score
+1 | 1 | ccc | 66.6
+2 | 2 | ccc | 66.6
+3 | 3 | ccc | 66.6
+4 | 4 | d | 4
+5 | 5 | e | 5.5
+6 | 6 | f | 6.6
+7 | 7 | g | 7.7
+8 | 8 | h | 8.8
+
+-- delete from t_basic where id = 8;
+SUCCESS
+
+-- select * from t_basic;
+id | age | name | score
+1 | 1 | ccc | 66.6
+2 | 2 | ccc | 66.6
+3 | 3 | ccc | 66.6
 4 | 4 | d | 4
 5 | 5 | e | 5.5
 6 | 6 | f | 6.6
@@ -43,8 +122,8 @@ SUCCESS
 
 -- select * from t_basic;
 id | age | name | score
-1 | 1 | a | 1
-2 | 2 | b | 2
+1 | 1 | ccc | 66.6
+2 | 2 | ccc | 66.6
 4 | 4 | d | 4
 5 | 5 | e | 5.5
 6 | 6 | f | 6.6
