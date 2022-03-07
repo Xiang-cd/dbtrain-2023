@@ -44,3 +44,6 @@ insert into t_basic values(2, 2, 'b', 2.0);
 -- Check multiple insert
 insert into t_basic values(3, 3, 'c', 3.0), (4, 4, 'd', 4.0);
 insert into t_basic values(5, 5, 'e', 5.5), (6, 6, 'f', 6.6), (7, 7, 'g', 7.7);
+
+-- Check select
+select * from t_basic;

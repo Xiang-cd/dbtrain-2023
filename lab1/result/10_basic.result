@@ -1,5 +1,7 @@
+-- use dbtrain_test;
 SUCCESS
 
+-- select * from t_basic;
 id | age | name | score
 1 | 1 | a | 1
 2 | 2 | b | 2
@@ -9,8 +11,10 @@ id | age | name | score
 6 | 6 | f | 6.6
 7 | 7 | g | 7.7
 
+-- insert into t_basic values(8, 8, 'h', 8.8);
 SUCCESS
 
+-- select * from t_basic;
 id | age | name | score
 1 | 1 | a | 1
 2 | 2 | b | 2
@@ -20,5 +24,50 @@ id | age | name | score
 6 | 6 | f | 6.6
 7 | 7 | g | 7.7
 8 | 8 | h | 8.8
+
+-- delete from t_basic where id = 8;
+SUCCESS
+
+-- select * from t_basic;
+id | age | name | score
+1 | 1 | a | 1
+2 | 2 | b | 2
+3 | 3 | c | 3
+4 | 4 | d | 4
+5 | 5 | e | 5.5
+6 | 6 | f | 6.6
+7 | 7 | g | 7.7
+
+-- delete from t_basic where id = 3;
+SUCCESS
+
+-- select * from t_basic;
+id | age | name | score
+1 | 1 | a | 1
+2 | 2 | b | 2
+4 | 4 | d | 4
+5 | 5 | e | 5.5
+6 | 6 | f | 6.6
+7 | 7 | g | 7.7
+
+-- delete from t_basic where id < 3;
+SUCCESS
+
+-- select * from t_basic;
+id | age | name | score
+4 | 4 | d | 4
+5 | 5 | e | 5.5
+6 | 6 | f | 6.6
+7 | 7 | g | 7.7
+
+-- delete from t_basic where id > 10;
+SUCCESS
+
+-- select * from t_basic;
+id | age | name | score
+4 | 4 | d | 4
+5 | 5 | e | 5.5
+6 | 6 | f | 6.6
+7 | 7 | g | 7.7
 
 Bye
