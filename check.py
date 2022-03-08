@@ -5,6 +5,7 @@ import json
 import operator
 from pathlib import Path
 import subprocess
+import traceback
 
 RED = '\033[0;31m'
 GREEN = '\033[0;32m'
@@ -99,11 +100,17 @@ def main():
     failure_count = 0
     for test_case in test_cases:
         test_case.run()
-        if test_case.check():
-            success_count += 1
-            print(f'Test {test_case.name} {GREEN}PASSED{NC}')
-            print()
-        else:
+        try:
+            if test_case.check():
+                success_count += 1
+                print(f'Test {test_case.name} {GREEN}PASSED{NC}')
+                print()
+            else:
+                failure_count += 1
+                print(f'Test {test_case.name} {RED}FAILED{NC}')
+                print()
+        except Exception:
+            traceback.print_exc()
             failure_count += 1
             print(f'Test {test_case.name} {RED}FAILED{NC}')
             print()
