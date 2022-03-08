@@ -1,6 +1,7 @@
 import argparse
 from functools import partial
 from itertools import groupby
+import json
 import operator
 from pathlib import Path
 import subprocess
@@ -17,6 +18,7 @@ class TestCase:
         self.filename = filename
         self.result_file = filename.parent.parent / 'result' / f'{name}.result'
         self.tmp_result_file = self.result_file.parent.parent / 'tmp' / f'{name}.tmp'
+        self.success = False
 
     def run(self):
         subprocess.call([self.base_dir / '..' / '..' / 'dbtrain-lab' / 'build' / 'bin' / 'main', '-s'], stdin=open(self.filename), stdout=open(self.tmp_result_file, 'w'), stderr=open('/dev/null'))
@@ -27,6 +29,11 @@ class TestCase:
         print('Got: ')
         print(f'{got}')
 
+    def to_json(self):
+        return {
+            'name': self.name,
+            'success': self.success,
+        }
 
     def check(self) -> bool:
         with open(self.result_file) as result_file:
@@ -56,6 +63,7 @@ class TestCase:
                             self.print_mismatch(results[i][j], tmp_results[i][j])
                             break
                 return False
+        self.success = True
         return True
 
 
@@ -63,6 +71,7 @@ def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--until', type=int, default=1000)
     parser.add_argument('-l', '--lab', type=int, default=1)
+    parser.add_argument('-o', '--output', action='store_true')
     args = parser.parse_args()
     return args
 
@@ -100,6 +109,15 @@ def main():
             print()
 
     print(f'{success_count} / {len(test_cases)} cases PASSED')
+    if args.output:
+        report = {'lab': args.lab, 'tests': len(test_cases), 'failures': failure_count, 'test_cases': []}
+        for test_case in test_cases:
+            report['test_cases'].append(test_case.to_json())
+        with open('report.json', 'w') as report_file:
+            json.dump(report, report_file, indent=2)
+
+    if success_count < len(test_cases):
+        exit(1)
 
 if __name__ == '__main__':
     main()
