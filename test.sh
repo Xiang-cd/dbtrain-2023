@@ -3,7 +3,7 @@ RED='\033[1;31m'
 GREEN='\033[1;32m'
 NC='\033[0m'
 
-LAB=$(cat ../LAB.txt)
+LAB=$(cat LAB.txt)
 
 cd ../dbtrain-lab
 mkdir -p build && cd build
