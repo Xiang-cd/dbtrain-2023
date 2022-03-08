@@ -3,9 +3,8 @@ RED='\033[1;31m'
 GREEN='\033[1;32m'
 NC='\033[0m'
 
-LAB=$(cat LAB.txt)
-
 cd ../dbtrain-lab
+LAB=$(cat LAB.txt)
 mkdir -p build && cd build
 cmake .. || { echo -e "${RED}Cmake Error${NC}"; exit 1; }
 make -j16 -l${MAX_LOAD_AVERAGE:-40} || { echo -e "${RED}Compile Error${NC}"; exit 1; }
