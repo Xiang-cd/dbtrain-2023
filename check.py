@@ -38,8 +38,6 @@ class TestCase:
         }
 
     def check(self) -> bool:
-        if self.name.startswith('40'):
-            raise Exception
         with open(self.result_file) as result_file:
             results = result_file.read().splitlines()
             results = [[i for i in g if not i.startswith('--')] for _, g in groupby(results, key=partial(operator.ne, ''))]
