@@ -5,6 +5,7 @@ import json
 import operator
 from pathlib import Path
 import subprocess
+import sys
 import traceback
 
 RED = '\033[0;31m'
@@ -37,6 +38,8 @@ class TestCase:
         }
 
     def check(self) -> bool:
+        if self.name.startswith('40'):
+            raise Exception
         with open(self.result_file) as result_file:
             results = result_file.read().splitlines()
             results = [[i for i in g if not i.startswith('--')] for _, g in groupby(results, key=partial(operator.ne, ''))]
@@ -110,7 +113,7 @@ def main():
                 print(f'Test {test_case.name} {RED}FAILED{NC}')
                 print()
         except Exception:
-            traceback.print_exc()
+            traceback.print_exc(file=sys.stdout)
             failure_count += 1
             print(f'Test {test_case.name} {RED}FAILED{NC}')
             print()
