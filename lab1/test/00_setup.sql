@@ -13,9 +13,6 @@ use dbtrain_test;
 use dbtrain_test_2;
 use dbtrain_test;
 
--- Check drop database
-drop database dbtrain_test_2;
-
 -- Check create table
 create table t_basic(id int, age int, name char(10), score float);
 create table t_basic_2(id int, age int, name char(10), score float);
@@ -25,6 +22,14 @@ show tables;
 
 -- Check desc table
 desc t_basic;
+
+-- Check desc after switching db
+use dbtrain_test_2;
+use dbtrain_test;
+desc t_basic;
+
+-- Check drop database
+drop database dbtrain_test_2;
 
 -- Check error: create existing table
 create table t_basic(id int, age int, name char(10), score float);

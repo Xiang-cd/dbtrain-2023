@@ -19,58 +19,71 @@ SUCCESS
 -- 7.use dbtrain_test;
 SUCCESS
 
--- 8.drop database dbtrain_test_2;
+-- 8.create table t_basic(id int, age int, name char(10), score float);
 SUCCESS
 
--- 9.create table t_basic(id int, age int, name char(10), score float);
+-- 9.create table t_basic_2(id int, age int, name char(10), score float);
 SUCCESS
 
--- 10.create table t_basic_2(id int, age int, name char(10), score float);
-SUCCESS
-
--- 11.show tables;
+-- 10.show tables;
 Tables
 t_basic
 t_basic_2
 
--- 12.desc t_basic;
+-- 11.desc t_basic;
 Name | Type | Length
 id | INT | 4
 age | INT | 4
 name | STRING | 10
 score | FLOAT | 8
 
--- 13.create table t_basic(id int, age int, name char(10), score float);
+-- 12.use dbtrain_test_2;
+SUCCESS
+
+-- 13.use dbtrain_test;
+SUCCESS
+
+-- 14.desc t_basic;
+Name | Type | Length
+id | INT | 4
+age | INT | 4
+name | STRING | 10
+score | FLOAT | 8
+
+-- 15.drop database dbtrain_test_2;
+SUCCESS
+
+-- 16.create table t_basic(id int, age int, name char(10), score float);
 FAILURE
 
--- 14.show tables;
+-- 17.show tables;
 Tables
 t_basic
 t_basic_2
 
--- 15.drop table t_basic_2;
+-- 18.drop table t_basic_2;
 SUCCESS
 
--- 16.show tables;
+-- 19.show tables;
 Tables
 t_basic
 
--- 17.drop table not_exists;
+-- 20.drop table not_exists;
 FAILURE
 
--- 18.insert into t_basic values(1, 1, 'a', 1.0);
+-- 21.insert into t_basic values(1, 1, 'a', 1.0);
 SUCCESS
 
--- 19.insert into t_basic values(2, 2, 'b', 2.0);
+-- 22.insert into t_basic values(2, 2, 'b', 2.0);
 SUCCESS
 
--- 20.insert into t_basic values(3, 3, 'c', 3.0), (4, 4, 'd', 4.0);
+-- 23.insert into t_basic values(3, 3, 'c', 3.0), (4, 4, 'd', 4.0);
 SUCCESS
 
--- 21.insert into t_basic values(5, 5, 'e', 5.5), (6, 6, 'f', 6.6), (7, 7, 'g', 7.7);
+-- 24.insert into t_basic values(5, 5, 'e', 5.5), (6, 6, 'f', 6.6), (7, 7, 'g', 7.7);
 SUCCESS
 
--- 22.select * from t_basic;
+-- 25.select * from t_basic;
 id | age | name | score
 1 | 1 | a | 1
 2 | 2 | b | 2
