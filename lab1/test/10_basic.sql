@@ -1,5 +1,8 @@
 use dbtrain_test;
 
+-- Check table meta data
+desc t_basic;
+
 -- Check database
 select * from t_basic;
 insert into t_basic values(8, 8, 'h', 8.8);

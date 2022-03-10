@@ -22,8 +22,8 @@ class TestCase:
         self.tmp_result_file = self.result_file.parent.parent / 'tmp' / f'{name}.tmp'
         self.success = False
 
-    def run(self):
-        subprocess.call([self.base_dir / '..' / '..' / 'dbtrain-lab' / 'build' / 'bin' / 'main', '-s'], stdin=open(self.filename), stdout=open(self.tmp_result_file, 'w'), stderr=open('/dev/null'))
+    def run(self, dir: str):
+        subprocess.call([self.base_dir / '..' / '..' / dir / 'build' / 'bin' / 'main', '-s'], stdin=open(self.filename), stdout=open(self.tmp_result_file, 'w'), stderr=open('/dev/null'))
 
     def print_mismatch(self, expected: str, got: str):
         print(f'{YELLOW}Expected: {NC}')
@@ -74,6 +74,7 @@ def parse():
     parser.add_argument('-u', '--until', type=int, default=1000)
     parser.add_argument('-l', '--lab', type=int, default=1)
     parser.add_argument('-o', '--output', action='store_true')
+    parser.add_argument('-d', '--dir', type=str, default='dbtrain-lab')
     args = parser.parse_args()
     return args
 
@@ -100,7 +101,7 @@ def main():
     success_count = 0
     failure_count = 0
     for test_case in test_cases:
-        test_case.run()
+        test_case.run(args.dir)
         try:
             if test_case.check():
                 success_count += 1

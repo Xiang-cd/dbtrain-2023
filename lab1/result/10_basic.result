@@ -1,7 +1,14 @@
 -- 1.use dbtrain_test;
 SUCCESS
 
--- 2.select * from t_basic;
+-- 2.desc t_basic;
+Name | Type | Length
+id | INT | 4
+age | INT | 4
+name | STRING | 10
+score | FLOAT | 8
+
+-- 3.select * from t_basic;
 id | age | name | score
 1 | 1 | a | 1
 2 | 2 | b | 2
@@ -11,10 +18,10 @@ id | age | name | score
 6 | 6 | f | 6.6
 7 | 7 | g | 7.7
 
--- 3.insert into t_basic values(8, 8, 'h', 8.8);
+-- 4.insert into t_basic values(8, 8, 'h', 8.8);
 SUCCESS
 
--- 4.select * from t_basic;
+-- 5.select * from t_basic;
 id | age | name | score
 1 | 1 | a | 1
 2 | 2 | b | 2
@@ -25,33 +32,33 @@ id | age | name | score
 7 | 7 | g | 7.7
 8 | 8 | h | 8.8
 
--- 5.select * from t_basic where id = 1;
+-- 6.select * from t_basic where id = 1;
 id | age | name | score
 1 | 1 | a | 1
 
--- 6.select * from t_basic where age < 3;
+-- 7.select * from t_basic where age < 3;
 id | age | name | score
 1 | 1 | a | 1
 2 | 2 | b | 2
 
--- 7.select * from t_basic where name = 'g';
+-- 8.select * from t_basic where name = 'g';
 id | age | name | score
 7 | 7 | g | 7.7
 
--- 8.select * from t_basic where score > 5.4;
+-- 9.select * from t_basic where score > 5.4;
 id | age | name | score
 5 | 5 | e | 5.5
 6 | 6 | f | 6.6
 7 | 7 | g | 7.7
 8 | 8 | h | 8.8
 
--- 9.select * from t_basic where id > 10;
+-- 10.select * from t_basic where id > 10;
 id | age | name | score
 
--- 10.update t_basic set name = 'cc' where name = 'c';
+-- 11.update t_basic set name = 'cc' where name = 'c';
 SUCCESS
 
--- 11.select * from t_basic;
+-- 12.select * from t_basic;
 id | age | name | score
 1 | 1 | a | 1
 2 | 2 | b | 2
@@ -62,10 +69,10 @@ id | age | name | score
 7 | 7 | g | 7.7
 8 | 8 | h | 8.8
 
--- 12.update t_basic set name = 'cc' where id < 3;
+-- 13.update t_basic set name = 'cc' where id < 3;
 SUCCESS
 
--- 13.select * from t_basic;
+-- 14.select * from t_basic;
 id | age | name | score
 1 | 1 | cc | 1
 2 | 2 | cc | 2
@@ -76,10 +83,10 @@ id | age | name | score
 7 | 7 | g | 7.7
 8 | 8 | h | 8.8
 
--- 14.update t_basic set score = 66.6, name = 'ccc' where id < 4;
+-- 15.update t_basic set score = 66.6, name = 'ccc' where id < 4;
 SUCCESS
 
--- 15.select * from t_basic;
+-- 16.select * from t_basic;
 id | age | name | score
 1 | 1 | ccc | 66.6
 2 | 2 | ccc | 66.6
@@ -90,10 +97,10 @@ id | age | name | score
 7 | 7 | g | 7.7
 8 | 8 | h | 8.8
 
--- 16.update t_basic set age = 8 where id > 10;
+-- 17.update t_basic set age = 8 where id > 10;
 SUCCESS
 
--- 17.select * from basic;
+-- 18.select * from basic;
 id | age | name | score
 1 | 1 | ccc | 66.6
 2 | 2 | ccc | 66.6
@@ -104,10 +111,10 @@ id | age | name | score
 7 | 7 | g | 7.7
 8 | 8 | h | 8.8
 
--- 18.delete from t_basic where id = 8;
+-- 19.delete from t_basic where id = 8;
 SUCCESS
 
--- 19.select * from t_basic;
+-- 20.select * from t_basic;
 id | age | name | score
 1 | 1 | ccc | 66.6
 2 | 2 | ccc | 66.6
@@ -117,10 +124,10 @@ id | age | name | score
 6 | 6 | f | 6.6
 7 | 7 | g | 7.7
 
--- 20.delete from t_basic where id = 3;
+-- 21.delete from t_basic where id = 3;
 SUCCESS
 
--- 21.select * from t_basic;
+-- 22.select * from t_basic;
 id | age | name | score
 1 | 1 | ccc | 66.6
 2 | 2 | ccc | 66.6
@@ -129,20 +136,20 @@ id | age | name | score
 6 | 6 | f | 6.6
 7 | 7 | g | 7.7
 
--- 22.delete from t_basic where id < 3;
+-- 23.delete from t_basic where id < 3;
 SUCCESS
 
--- 23.select * from t_basic;
+-- 24.select * from t_basic;
 id | age | name | score
 4 | 4 | d | 4
 5 | 5 | e | 5.5
 6 | 6 | f | 6.6
 7 | 7 | g | 7.7
 
--- 24.delete from t_basic where id > 10;
+-- 25.delete from t_basic where id > 10;
 SUCCESS
 
--- 25.select * from t_basic;
+-- 26.select * from t_basic;
 id | age | name | score
 4 | 4 | d | 4
 5 | 5 | e | 5.5
