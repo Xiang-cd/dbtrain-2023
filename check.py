@@ -26,9 +26,9 @@ class TestCase:
         subprocess.call([self.base_dir / '..' / '..' / dir / 'build' / 'bin' / 'main', '-s'], stdin=open(self.filename), stdout=open(self.tmp_result_file, 'w'), stderr=open('/dev/null'))
 
     def print_mismatch(self, expected: str, got: str):
-        print(f'{YELLOW}Expected: {NC}')
+        print(f'{YELLOW}Expected:{NC}')
         print(f'{expected}')
-        print(f'{YELLOW}Got: {NC}')
+        print(f'{YELLOW}Got:{NC}')
         print(f'{got}')
 
     def to_json(self):
