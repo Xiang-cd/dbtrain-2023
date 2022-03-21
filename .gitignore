@@ -1,3 +1,4 @@
 dbtrain/
 tmp/
+build/
 report.json
