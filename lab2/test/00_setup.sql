@@ -1,5 +1,6 @@
 drop database if exists dbtrain_test_lab2;
 
+create database dbtrain_test_lab2;
 use dbtrain_test_lab2;
 
 create table persons(id int, first_name varchar(20), last_name varchar(20), temperature float);
