@@ -1,0 +1,16 @@
+-- 1.drop database if exists dbtrain_test_lab2;
+SUCCESS
+
+-- 2.use dbtrain_test_lab2;
+SUCCESS
+
+-- 3.create table persons(id int, first_name varchar(20), last_name varchar(20), temperature float);
+SUCCESS
+
+-- 4.insert
+SUCCESS
+
+-- 5.insert
+SUCCESS
+
+Bye
