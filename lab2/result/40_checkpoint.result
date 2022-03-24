@@ -32,7 +32,7 @@ SUCCESS
 SUCCESS
 
 -- 12.crash;
-SUCCESS
+CRASH
 
 -- use dbtrain_test_lab2;
 SUCCESS

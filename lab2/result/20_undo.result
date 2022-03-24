@@ -14,7 +14,7 @@ SUCCESS
 SUCCESS
 
 -- 6.flush;
-SUCCESS
+FLUSH
 
 -- 7.select * from persons;
 id | first_name | last_name | temperature
@@ -220,7 +220,7 @@ id | first_name | last_name | temperature
 201 | 12345678901234567890 | 09876543210987654321 | 36.3
 
 -- 8.crash;
-SUCCESS
+CRASH
 
 -- use dbtrain_test_lab2;
 SUCCESS
