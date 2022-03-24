@@ -4,15 +4,15 @@ begin;
 
 insert into persons values(202, '12345678901234567890', '09876543210987654321', 36.3);
 
-delete from persons where id = 2;
+delete from persons where id = 201;
 
-update persons set temperature = 36.3 where id = 100;
+update persons set temperature = 36.8 where id = 199;
 
 commit;
 
 begin;
 
-delete from persons where id < 10;
+delete from persons where id > 185 and id < 190;
 
 checkpoint;
 
