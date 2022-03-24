@@ -12,6 +12,6 @@ commit;
 
 crash;
 
-recover;
+use dbtrain_test_lab2;
 
 select * from persons;

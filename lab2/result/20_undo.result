@@ -222,7 +222,7 @@ id | first_name | last_name | temperature
 -- 8.crash;
 SUCCESS
 
--- 9.recover;
+-- use dbtrain_test_lab2;
 SUCCESS
 
 -- 10.select * from persons;

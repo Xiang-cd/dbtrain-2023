@@ -19,7 +19,7 @@ SUCCESS
 -- 7.crash;
 SUCCESS
 
--- 8.recover;
+-- use dbtrain_test_lab2;
 SUCCESS
 
 -- 9.select * from persons;

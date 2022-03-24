@@ -22,6 +22,6 @@ update persons set temperature = 37.3 where id > 200;
 
 crash;
 
-recover;
+use dbtrain_test_lab2;
 
 select * from persons;
