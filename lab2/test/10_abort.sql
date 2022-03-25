@@ -6,7 +6,7 @@ insert into persons values(201, '12345678901234567890', '09876543210987654321', 
 
 delete from persons where id = 200;
 
-update persons set temperature = 37.3 where id = 199;
+update persons set temperature = 37.3 where id = 100;
 
 select * from persons;
 
