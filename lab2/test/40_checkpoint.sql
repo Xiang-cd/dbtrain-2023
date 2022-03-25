@@ -4,7 +4,7 @@ begin;
 
 insert into persons values(202, '12345678901234567890', '09876543210987654321', 36.3);
 
-delete from persons where id = 201;
+delete from persons where id = 199;
 
 update persons set temperature = 36.8 where id = 100;
 
