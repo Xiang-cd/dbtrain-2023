@@ -34,7 +34,7 @@ SUCCESS
 -- 12.crash;
 CRASH
 
--- use dbtrain_test_lab2;
+-- 13.use dbtrain_test_lab2;
 SUCCESS
 
 -- 14.select * from persons;

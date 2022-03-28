@@ -72,7 +72,7 @@ class TestCase:
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--until', type=int, default=1000)
-    parser.add_argument('-l', '--lab', type=int, default=1)
+    parser.add_argument('-l', '--lab', type=int, default=2)
     parser.add_argument('-o', '--output', action='store_true')
     parser.add_argument('-d', '--dir', type=str, default='dbtrain-lab')
     args = parser.parse_args()
@@ -96,6 +96,7 @@ def main():
     if not (base_dir / 'tmp').is_dir():
         (base_dir / 'tmp').mkdir()
     test_file_names = sorted((base_dir / 'test').glob('*.sql'))
+    assert len(test_file_names) > 0
     test_cases = get_test_cases(args.until, test_file_names, base_dir)
 
     success_count = 0
