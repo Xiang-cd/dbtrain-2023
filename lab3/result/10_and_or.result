@@ -1,0 +1,51 @@
+-- 1.use dbtrain_test_lab3;
+SUCCESS
+
+-- 2.select * from basic2 where b_id2 > 1 and b_id2 < 3;
+b_id2 | b_score2 | b_name2
+2 | 2.1 | basic2_2a
+2 | 2.2 | basic2_2b
+
+-- 3.select * from basic2 where b_id2 = 1 or b_id2 > 3;
+b_id2 | b_score2 | b_name2
+1 | 1.1 | basic2_1a
+1 | 1.2 | basic2_1b
+4 | 4.4 | basic2_4a
+
+-- 4.select * from basic2 where b_id2 > 2 and b_id2 < 4;
+b_id2 | b_score2 | b_name2
+
+-- 5.select * from basic2 where b_id2 < 0 or b_id2 > 4;
+b_id2 | b_score2 | b_name2
+
+-- 6.select * from basic2 where b_id2 > 1 and b_id2 > 2;
+b_id2 | b_score2 | b_name2
+4 | 4.4 | basic2_4a
+
+-- 7.select * from basic2 where b_id2 > 1 or b_id2 > 2;
+b_id2 | b_score2 | b_name2
+2 | 2.1 | basic2_2a
+2 | 2.2 | basic2_2b
+4 | 4.4 | basic2_4a
+
+-- 8.select * from basic2 where b_id2 > 1 and b_score2 > 3.3;
+b_id2 | b_score2 | b_name2
+4 | 4.4 | basic2_4a
+
+-- 9.select * from basic2 where b_id2 < 2 or b_name2 = 'basic2_2b';
+b_id2 | b_score2 | b_name2
+1 | 1.1 | basic2_1a
+1 | 1.2 | basic2_1b
+2 | 2.2 | basic2_2b
+
+-- 10.select * from basic2 where b_id2 > 1 and b_id2 < 5 and b_score2 > 2.15;
+b_id2 | b_score2 | b_name2
+2 | 2.2 | basic2_2b
+4 | 4.4 | basic2_4a
+
+-- 11.select * from basic2 where b_id2 < 1 or b_id2 > 3 or b_score2 < 1.15 or b_name2 = 'basic2_1a';
+b_id2 | b_score2 | b_name2
+1 | 1.1 | basic2_1a
+4 | 4.4 | basic2_4a
+
+Bye
