@@ -1,7 +1,7 @@
--- use dbtrain_test_lab3;
+-- 1.use dbtrain_test_lab3;
 SUCCESS
 
--- select * from person1, person2 where person1.id = person2.id;
+-- 2.select * from person1, person2 where person1.id = person2.id;
 id | first_name | last_name | temperature | id | temperature
 1 | 12345678901234567890 | 09876543210987654321 | 36.3 | 1 | 36.3
 2 | 12345678901234567890 | 09876543210987654321 | 36.3 | 2 | 36.3
