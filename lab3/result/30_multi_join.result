@@ -17,7 +17,7 @@ b_id1 | b_name1 | b_score2 | b_name2 | f_name1
 1 | basic1_1b | 1.2 | basic2_1b | full1_3
 
 -- select b_id1, b_name1, b_score2, b_name2, f_name1, f_name2 from basic1, basic2, full1, full2 where basic1.b_id1 = basic2.b_id2 and full1.f_id1 = basic1.b_id1 and full2.f_id2 = basic1.b_id1;
-b_id1 | b_name1 | b_score2 | b_name2 | f_name1 | f_name2 |
+b_id1 | b_name1 | b_score2 | b_name2 | f_name1 | f_name2 
 1 | basic1_1a | 1.1 | basic2_1a | full1_1 | full2_1
 1 | basic1_1a | 1.1 | basic2_1a | full1_1 | full2_2
 1 | basic1_1a | 1.1 | basic2_1a | full1_1 | full2_3
