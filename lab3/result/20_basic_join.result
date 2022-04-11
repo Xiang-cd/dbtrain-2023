@@ -32,9 +32,7 @@ e_id1 | e_name1 | e_name2
 
 -- 6.select b_id1, b_name1, b_score2, b_name2 from basic1, basic2 where basic1.b_id1 = 1 and basic1.b_id1 = basic2.b_id2;
 b_id1 | b_name1 | b_score2 | b_name2
-1 | basic1_1a | 1.1 | basic2_1a
 1 | basic1_1a | 1.2 | basic2_1b
-1 | basic1_1b | 1.1 | basic2_1a
 1 | basic1_1b | 1.2 | basic2_1b
 
 Bye
