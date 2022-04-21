@@ -72,7 +72,7 @@ class TestCase:
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--until', type=int, default=1000)
-    parser.add_argument('-l', '--lab', type=int, default=2)
+    parser.add_argument('-l', '--lab', type=int, default=3)
     parser.add_argument('-o', '--output', action='store_true')
     parser.add_argument('-d', '--dir', type=str, default='dbtrain-lab')
     args = parser.parse_args()
