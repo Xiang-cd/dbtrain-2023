@@ -1,5 +1,7 @@
 use dbtrain_test_lab4;
 
+analyze;
+
 -- t2, t1, t3
 explain select t2.id from t2, t3, t1 where t2.id = t3.id and t2.id = t1.id and t2.score < 10.0;
 
