@@ -1,0 +1,47 @@
+SUCCESS
+
+ANALYZE
+
+Select:
+=Project Node:
+==Join Node:JOIN
+===Join Node:JOIN
+====Filter Node:
+=====Table Scan Node(t2):
+====Table Scan Node(t1):
+===Table Scan Node(t3):
+EXPLAIN
+
+Select:
+=Project Node:
+==Join Node:JOIN
+===Join Node:JOIN
+====Filter Node:
+=====Table Scan Node(t2):
+====Table Scan Node(t1):
+===Table Scan Node(t3):
+EXPLAIN
+
+Select:
+=Project Node:
+==Join Node:JOIN
+===Join Node:JOIN
+====Filter Node:
+=====Table Scan Node(t2):
+====Table Scan Node(t1):
+===Table Scan Node(t3):
+EXPLAIN
+
+Select:
+=Project Node:
+==Join Node:JOIN
+===Join Node:JOIN
+====Filter Node:
+=====Table Scan Node(t2):
+====Filter Node:
+=====Table Scan Node(t1):
+===Filter Node:
+====Table Scan Node(t3):
+EXPLAIN
+
+Bye
