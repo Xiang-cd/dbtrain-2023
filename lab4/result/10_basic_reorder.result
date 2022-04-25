@@ -3,12 +3,12 @@ SUCCESS
 ANALYZE
 
 Select:
-=Project Node:
-==Join Node:JOIN
-===Join Node:JOIN
-====Table Scan Node(t2):
-====Table Scan Node(t1):
-===Table Scan Node(t3):
+	Project Node:
+		Join Node:JOIN
+			Join Node:JOIN
+				Table Scan Node(t2):
+				Table Scan Node(t1):
+			Table Scan Node(t3):
 EXPLAIN
 
 Bye

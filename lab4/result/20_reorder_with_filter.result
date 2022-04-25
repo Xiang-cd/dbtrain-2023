@@ -3,45 +3,45 @@ SUCCESS
 ANALYZE
 
 Select:
-=Project Node:
-==Join Node:JOIN
-===Join Node:JOIN
-====Filter Node:
-=====Table Scan Node(t3):
-====Table Scan Node(t1):
-===Table Scan Node(t2):
+	Project Node:
+		Join Node:JOIN
+			Join Node:JOIN
+				Filter Node:
+					Table Scan Node(t3):
+				Table Scan Node(t1):
+			Table Scan Node(t2):
 EXPLAIN
 
 Select:
-=Project Node:
-==Join Node:JOIN
-===Join Node:JOIN
-====Filter Node:
-=====Table Scan Node(t3):
-====Table Scan Node(t1):
-===Table Scan Node(t2):
+	Project Node:
+		Join Node:JOIN
+			Join Node:JOIN
+				Filter Node:
+					Table Scan Node(t3):
+				Table Scan Node(t1):
+			Table Scan Node(t2):
 EXPLAIN
 
 Select:
-=Project Node:
-==Join Node:JOIN
-===Join Node:JOIN
-====Filter Node:
-=====Table Scan Node(t3):
-====Table Scan Node(t1):
-===Table Scan Node(t2):
+	Project Node:
+		Join Node:JOIN
+			Join Node:JOIN
+				Filter Node:
+					Table Scan Node(t3):
+				Table Scan Node(t1):
+			Table Scan Node(t2):
 EXPLAIN
 
 Select:
-=Project Node:
-==Join Node:JOIN
-===Join Node:JOIN
-====Filter Node:
-=====Table Scan Node(t3):
-====Filter Node:
-=====Table Scan Node(t2):
-===Filter Node:
-====Table Scan Node(t1):
+	Project Node:
+		Join Node:JOIN
+			Join Node:JOIN
+				Filter Node:
+					Table Scan Node(t3):
+				Filter Node:
+					Table Scan Node(t2):
+			Filter Node:
+				Table Scan Node(t1):
 EXPLAIN
 
 Bye
