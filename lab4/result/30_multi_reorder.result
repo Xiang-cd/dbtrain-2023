@@ -38,4 +38,16 @@ Select:
 			Table Scan Node(t4):
 EXPLAIN
 
+Select:
+	Project Node:
+		Join Node:JOIN
+			Join Node:JOIN
+				Join Node:JOIN
+					Table Scan Node(t4):
+					Table Scan Node(t1):
+				Table Scan Node(t2):
+			Filter Node:
+				Table Scan Node(t3):
+EXPLAIN
+
 Bye
