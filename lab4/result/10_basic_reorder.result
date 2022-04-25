@@ -1,7 +1,10 @@
+-- 1.use dbtrain_test_lab4;
 SUCCESS
 
+-- 2.analyze;
 ANALYZE
 
+-- 3.explain select t2.id from t2, t3, t1 where t2.id = t3.id and t2.id = t1.id;
 Select:
 	Project Node:
 		Join Node:

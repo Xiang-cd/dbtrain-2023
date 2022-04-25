@@ -1,7 +1,10 @@
+-- 1.use dbtrain_test_lab4;
 SUCCESS
 
+-- 2.analyze;
 ANALYZE
 
+-- 3.explain select t2.id from t1, t2, t3 where t3.id = t1.id and t3.id = t2.id and t3.score < 10.0;
 Select:
 	Project Node:
 		Join Node:
@@ -12,6 +15,7 @@ Select:
 			Table Scan Node(t2):
 EXPLAIN
 
+-- 4.explain select t2.id from t1, t2, t3 where t3.id = t1.id and t3.id = t2.id and t3.score > 80.0 and t3.score < 90.0;
 Select:
 	Project Node:
 		Join Node:
@@ -22,6 +26,7 @@ Select:
 			Table Scan Node(t2):
 EXPLAIN
 
+-- 5.explain select t2.id from t1, t2, t3 where t3.id = t1.id and t3.id = t2.id and t3.score < 30.0 and t3.temp < 36.0;
 Select:
 	Project Node:
 		Join Node:
@@ -32,6 +37,7 @@ Select:
 			Table Scan Node(t2):
 EXPLAIN
 
+-- 6.explain select t2.id from t1, t2, t3 where t3.id = t1.id and t3.id = t2.id and t2.score < 10.0 and t3.score > 97.0 and t1.score < 200.0;
 Select:
 	Project Node:
 		Join Node:

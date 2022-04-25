@@ -1,23 +1,34 @@
+-- 1.drop database if exists dbtrain_test_lab4;
 SUCCESS
 
+-- 2.create database dbtrain_test_lab4;
 SUCCESS
 
+-- 3.use dbtrain_test_lab4;
 SUCCESS
 
+-- 4.create table t1(id int, score float);
 SUCCESS
 
+-- 5.insert
 SUCCESS
 
+-- 6.create table t2(id int, id2 int, score float);
 SUCCESS
 
+-- 7.insert
 SUCCESS
 
+-- 8.create table t3(id int, score float, temp float);
 SUCCESS
 
+-- 9.insert
 SUCCESS
 
+-- 10.create table t4(id int, id2 int, score float);
 SUCCESS
 
+-- 11.insert
 SUCCESS
 
 Bye
