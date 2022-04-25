@@ -14,4 +14,14 @@ Select:
 			Table Scan Node(t3):
 EXPLAIN
 
+-- 4.explain select t2.id from t2, t3, t1 where t2.id = t1.id and t2.id = t3.id;
+Select:
+	Project Node:
+		Join Node:
+			Join Node:
+				Table Scan Node(t2):
+				Table Scan Node(t1):
+			Table Scan Node(t3):
+EXPLAIN
+
 Bye
