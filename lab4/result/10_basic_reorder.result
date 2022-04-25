@@ -4,8 +4,8 @@ ANALYZE
 
 Select:
 	Project Node:
-		Join Node:JOIN
-			Join Node:JOIN
+		Join Node:
+			Join Node:
 				Table Scan Node(t2):
 				Table Scan Node(t1):
 			Table Scan Node(t3):

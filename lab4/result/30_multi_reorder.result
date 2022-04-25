@@ -4,23 +4,23 @@ ANALYZE
 
 Select:
 	Project Node:
-		Join Node:JOIN
+		Join Node:
 			Table Scan Node(t4):
-			Join Node:JOIN
+			Join Node:
 				Filter Node:
 					Table Scan Node(t3):
-				Join Node:JOIN
+				Join Node:
 					Table Scan Node(t2):
 					Table Scan Node(t1):
 EXPLAIN
 
 Select:
 	Project Node:
-		Join Node:JOIN
-			Join Node:JOIN
+		Join Node:
+			Join Node:
 				Filter Node:
 					Table Scan Node(t3):
-				Join Node:JOIN
+				Join Node:
 					Table Scan Node(t1):
 					Table Scan Node(t2):
 			Table Scan Node(t4):
@@ -28,9 +28,9 @@ EXPLAIN
 
 Select:
 	Project Node:
-		Join Node:JOIN
-			Join Node:JOIN
-				Join Node:JOIN
+		Join Node:
+			Join Node:
+				Join Node:
 					Table Scan Node(t1):
 					Table Scan Node(t2):
 				Filter Node:
@@ -40,9 +40,9 @@ EXPLAIN
 
 Select:
 	Project Node:
-		Join Node:JOIN
-			Join Node:JOIN
-				Join Node:JOIN
+		Join Node:
+			Join Node:
+				Join Node:
 					Table Scan Node(t4):
 					Table Scan Node(t1):
 				Table Scan Node(t2):
