@@ -19,35 +19,23 @@ Select:
 ==Join Node:JOIN
 ===Table Scan Node(t4):
 ===Join Node:JOIN
-====Table Scan Node(t1):
-====Join Node:JOIN
-=====Table Scan Node(t2):
-=====Filter Node:
-======Table Scan Node(t3):
-EXPLAIN
-
-Select:
-=Project Node:
-==Join Node:JOIN
-===Join Node:JOIN
-====Join Node:JOIN
-=====Table Scan Node(t1):
-=====Table Scan Node(t4):
 ====Filter Node:
 =====Table Scan Node(t3):
-===Table Scan Node(t2):
+====Join Node:JOIN
+=====Table Scan Node(t2):
+=====Table Scan Node(t1):
 EXPLAIN
 
 Select:
 =Project Node:
 ==Join Node:JOIN
+===Table Scan Node(t4):
 ===Join Node:JOIN
+====Filter Node:
+=====Table Scan Node(t3):
 ====Join Node:JOIN
-=====Table Scan Node(t4):
-=====Filter Node:
-======Table Scan Node(t3):
-====Table Scan Node(t2):
-===Table Scan Node(t1):
+=====Table Scan Node(t2):
+=====Table Scan Node(t1):
 EXPLAIN
 
 Bye
