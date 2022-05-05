@@ -15,19 +15,30 @@
 use dbtrain_test_lab5;
 
 declare t1;
-insert into person values (2, 'b', 36.6);
-select * from person;
+  begin;
+  insert into person values (2, 'b', 36.6);
+  select * from person;
+  signal t1_2;
+  wait t2_1;
+  commit;
+  signal t1_c;
 enddecl t1;
 
 declare t2;
-select * from person;
-select * from person;
+  wait t1_2;
+  begin;
+  select * from person;
+  signal t2_1;
+  wait t1_c;
+  select * from person;
+  commit;
+  signal t2_c;
 enddecl t2;
 
-run t1, t2;
-
 declare t3;
-select * from person;
+  begin;
+  select * from person;
+  commit;
 enddecl t3;
 
-run t3;
+run t1, t2, t3;
