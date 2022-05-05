@@ -36,6 +36,7 @@ declare t2;
 enddecl t2;
 
 declare t3;
+  wait t2_c;
   begin;
   select * from person;
   commit;
