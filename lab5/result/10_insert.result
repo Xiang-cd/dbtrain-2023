@@ -1,0 +1,76 @@
+SUCCESS
+
+DECLARE BEGIN
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+DECLARE END
+
+DECLARE BEGIN
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+DECLARE END
+
+DECLARE BEGIN
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+DECLARE END
+
+t1
+1 | a | 36.1
+2 | b | 36.2
+3 | c | 36.3
+4 | d | 36.4
+
+t2
+1 | a | 36.1
+2 | b | 36.2
+3 | c | 36.3
+
+1 | a | 36.1
+2 | b | 36.2
+3 | c | 36.3
+
+t3
+1 | a | 36.1
+2 | b | 36.2
+3 | c | 36.3
+4 | d | 36.4
+
+MULTITHREAD RUN
+
+Bye

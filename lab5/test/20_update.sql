@@ -1,4 +1,4 @@
---    Txn #0 | Txn #1 | Txn #2 |
+--    Txn #1 | Txn #2 | Txn #3 |
 --    --------------------------
 --    BEGIN  |        |        |
 --    W(X)   |        |        |
@@ -15,26 +15,8 @@
 use dbtrain_test_lab5;
 
 declare t1;
-update person set temperature = 37.6 where id = 2;
-select * from person;
-enddecl t1;
-
-declare t2;
-select * from person;
-select * from person;
-enddecl t2;
-
-run t1, t2;
-
-declare t3;
-select * from person;
-enddecl t3;
-
-run t3;
-
-declare t1;
   begin;
-  update person set temperature = 37.6 where id = 2;
+  update person set temperature = 37.2 where id = 2;
   select * from person;
   signal t1_2;
   wait t2_1;

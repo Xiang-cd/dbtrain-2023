@@ -1,4 +1,4 @@
---    Txn #0 | Txn #1 | Txn #2 |
+--    Txn #1 | Txn #2 | Txn #3 |
 --    --------------------------
 --    BEGIN  |        |        |
 --    W(X)   |        |        |
@@ -16,7 +16,7 @@ use dbtrain_test_lab5;
 
 declare t1;
   begin;
-  insert into person values (2, 'b', 36.6);
+  insert into person values (4, 'd', 36.4);
   select * from person;
   signal t1_2;
   wait t2_1;
