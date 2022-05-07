@@ -1,143 +1,204 @@
+-- 1.use dbtrain_test_lab5;
 SUCCESS
 
+-- 2.declare t1;
 DECLARE BEGIN
 
+-- 3.begin;
 SUCCESS
 
+-- 4.insert into persons values (4, 'd', 36.4);
 SUCCESS
 
+-- 5.select * from persons;
 SUCCESS
 
+-- 6.signal t1_2;
 SUCCESS
 
+-- 7.wait t2_1;
 SUCCESS
 
+-- 8.commit;
 SUCCESS
 
+-- 9.signal t1_c;
 SUCCESS
 
+-- 10.enddecl t1;
 DECLARE END
 
+-- 11.declare t2;
 DECLARE BEGIN
 
+-- 12.wait t1_2;
 SUCCESS
 
+-- 13.begin;
 SUCCESS
 
+-- 14.select * from persons;
 SUCCESS
 
+-- 15.signal t2_1;
 SUCCESS
 
+-- 16.wait t1_c;
 SUCCESS
 
+-- 17.select * from persons;
 SUCCESS
 
+-- 18.commit;
 SUCCESS
 
+-- 19.signal t2_c;
 SUCCESS
 
+-- 20.enddecl t2;
 DECLARE END
 
+-- 21.declare t3;
 DECLARE BEGIN
 
+-- 22.wait t2_c;
 SUCCESS
 
+-- 23.begin;
 SUCCESS
 
+-- 24.select * from persons;
 SUCCESS
 
+-- 25.commit;
 SUCCESS
 
+-- 26.enddecl t3;
 DECLARE END
 
+-- 27.select * from persons;
 t1
 1 | a | 36.1
 2 | b | 36.2
 3 | c | 36.3
 4 | d | 36.4
 
+-- 28.select * from persons;
 t2
 1 | a | 36.1
 2 | b | 36.2
 3 | c | 36.3
 
+-- 29.select * from persons;
 1 | a | 36.1
 2 | b | 36.2
 3 | c | 36.3
 
+-- 30.select * from persons;
 t3
 1 | a | 36.1
 2 | b | 36.2
 3 | c | 36.3
 4 | d | 36.4
 
+-- 31.run t1, t2, t3;
 MULTITHREAD RUN
 
+-- 32.declare t4;
 DECLARE BEGIN
 
+-- 33.begin;
 SUCCESS
 
+-- 34.signal t4_1;
 SUCCESS
 
+-- 35.wait t5_1;
 SUCCESS
 
+-- 36.select * from persons;
 SUCCESS
 
+-- 37.signal t4_2;
 SUCCESS
 
+-- 38.wait t5_c;
 SUCCESS
 
+-- 39.select * from persons;
 SUCCESS
 
+-- 40.commit;
 SUCCESS
 
+-- 41.signal t4_c;
 SUCCESS
 
+-- 42.enddecl t4;
 DECLARE END
 
+-- 43.declare t5;
 DECLARE BEGIN
 
+-- 44.wait t4_1;
 SUCCESS
 
+-- 45.begin;
 SUCCESS
 
+-- 46.insert into persons values (5, 'e', 36.5);
 SUCCESS
 
+-- 47.signal t5_1;
 SUCCESS
 
+-- 48.wait t4_2;
 SUCCESS
 
+-- 49.select * from persons;
 SUCCESS
 
+-- 50.commit;
 SUCCESS
 
+-- 51.signal t5_c;
 SUCCESS
 
+-- 52.enddecl t5;
 DECLARE END
 
+-- 53.declare t6;
 DECLARE BEGIN
 
+-- 54.wait t4_c;
 SUCCESS
 
+-- 55.begin;
 SUCCESS
 
+-- 56.select * from persons;
 SUCCESS
 
+-- 57.commit;
 SUCCESS
 
+-- 58.enddecl t6;
 DECLARE END
 
+-- 59.select * from persons;
 t4
 1 | a | 36.1
 2 | b | 36.2
 3 | c | 36.3
 4 | d | 36.4
 
+-- 60.select * from persons;
 1 | a | 36.1
 2 | b | 36.2
 3 | c | 36.3
 4 | d | 36.4
 
+-- 61.select * from persons;
 t5
 1 | a | 36.1
 2 | b | 36.2
@@ -145,6 +206,7 @@ t5
 4 | d | 36.4
 5 | e | 36.5
 
+-- 62.select * from persons;
 t6
 1 | a | 36.1
 2 | b | 36.2
@@ -152,6 +214,7 @@ t6
 4 | d | 36.4
 5 | e | 36.5
 
+-- 63.run t4, t5, t6;
 MULTITHREAD RUN
 
 Bye

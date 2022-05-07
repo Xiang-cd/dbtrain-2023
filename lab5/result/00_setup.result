@@ -1,15 +1,16 @@
+-- 1.drop database if exists dbtrain_test_lab5;
 SUCCESS
 
+-- 2.create database dbtrain_test_lab5;
 SUCCESS
 
+-- 3.use dbtrain_test_lab5;
 SUCCESS
 
+-- 4.create table persons(id int, name varchar(20), temperature float);
 SUCCESS
 
-SUCCESS
-
-SUCCESS
-
+-- 5.insert into persons values(1, 'a', 36.1), (2, 'b', 36.2), (3, 'c', 36.3);
 SUCCESS
 
 Bye
