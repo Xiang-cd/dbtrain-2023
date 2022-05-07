@@ -73,4 +73,85 @@ t3
 
 MULTITHREAD RUN
 
+DECLARE BEGIN
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+DECLARE END
+
+DECLARE BEGIN
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+DECLARE END
+
+DECLARE BEGIN
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+SUCCESS
+
+DECLARE END
+
+t4
+1 | a | 36.1
+2 | b | 36.2
+3 | c | 36.3
+4 | d | 36.4
+
+1 | a | 36.1
+2 | b | 36.2
+3 | c | 36.3
+4 | d | 36.4
+
+t5
+1 | a | 36.1
+2 | b | 36.2
+3 | c | 36.3
+4 | d | 36.4
+5 | e | 36.5
+
+t6
+1 | a | 36.1
+2 | b | 36.2
+3 | c | 36.3
+4 | d | 36.4
+5 | e | 36.5
+
+MULTITHREAD RUN
+
 Bye
