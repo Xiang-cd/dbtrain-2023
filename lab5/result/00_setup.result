@@ -1,16 +1,118 @@
--- 1.drop database if exists dbtrain_test_lab5;
+-- 1.drop database if exists dbtrain_test_lab3;
 SUCCESS
 
--- 2.create database dbtrain_test_lab5;
+-- 2.create database dbtrain_test_lab3;
 SUCCESS
 
--- 3.use dbtrain_test_lab5;
+-- 3.use dbtrain_test_lab3;
 SUCCESS
 
--- 4.create table persons(id int, name varchar(20), temperature float);
+-- 4.create table person1(id int, first_name varchar(20), last_name varchar(20), temperature float);
 SUCCESS
 
--- 5.insert into persons values(1, 'a', 36.1), (2, 'b', 36.2), (3, 'c', 36.3);
+-- 5.insert
+SUCCESS
+
+-- 6.insert
+SUCCESS
+
+-- 7.insert
+SUCCESS
+
+-- 8.insert
+SUCCESS
+
+-- 9.insert
+SUCCESS
+
+-- 10.insert
+SUCCESS
+
+-- 11.insert
+SUCCESS
+
+-- 12.insert
+SUCCESS
+
+-- 13.insert
+SUCCESS
+
+-- 14.insert
+SUCCESS
+
+-- 15.create table person2(id int, temperature float);
+SUCCESS
+
+-- 16.insert
+SUCCESS
+
+-- 17.insert
+SUCCESS
+
+-- 18.insert
+SUCCESS
+
+-- 19.insert
+SUCCESS
+
+-- 20.insert
+SUCCESS
+
+-- 21.insert
+SUCCESS
+
+-- 22.insert
+SUCCESS
+
+-- 23.insert
+SUCCESS
+
+-- 24.insert
+SUCCESS
+
+-- 25.insert
+SUCCESS
+
+-- 26.create table basic1(b_id1 int, b_name1 char(10));
+SUCCESS
+
+-- 27.create table basic2(b_id2 int, b_score2 float, b_name2 char(10));
+SUCCESS
+
+-- 28.insert
+SUCCESS
+
+-- 29.insert
+SUCCESS
+
+-- 30.create table full1(f_id1 int, f_name1 char(10));
+SUCCESS
+
+-- 31.create table full2(f_id2 int, f_name2 char(10));
+SUCCESS
+
+-- 32.insert
+SUCCESS
+
+-- 33.insert
+SUCCESS
+
+-- 34.create table nomatch1(n_id1 int, n_name1 char(10));
+SUCCESS
+
+-- 35.create table nomatch2(n_id2 int, n_name2 char(10));
+SUCCESS
+
+-- 36.insert
+SUCCESS
+
+-- 37.insert
+SUCCESS
+
+-- 38.create table empty1(e_id1 int, e_name1 char(10));
+SUCCESS
+
+-- 39.create table empty2(e_id2 int, e_name2 char(10));
 SUCCESS
 
 Bye

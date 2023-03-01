@@ -1,34 +1,16 @@
--- 1.drop database if exists dbtrain_test_lab4;
+-- 1.drop database if exists dbtrain_test_lab5;
 SUCCESS
 
--- 2.create database dbtrain_test_lab4;
+-- 2.create database dbtrain_test_lab5;
 SUCCESS
 
--- 3.use dbtrain_test_lab4;
+-- 3.use dbtrain_test_lab5;
 SUCCESS
 
--- 4.create table t1(id int, score float);
+-- 4.create table persons(id int, name varchar(20), temperature float);
 SUCCESS
 
--- 5.insert
-SUCCESS
-
--- 6.create table t2(id int, id2 int, score float);
-SUCCESS
-
--- 7.insert
-SUCCESS
-
--- 8.create table t3(id int, score float, temp float);
-SUCCESS
-
--- 9.insert
-SUCCESS
-
--- 10.create table t4(id int, id2 int, score float);
-SUCCESS
-
--- 11.insert
+-- 5.insert into persons values(1, 'a', 36.1), (2, 'b', 36.2), (3, 'c', 36.3);
 SUCCESS
 
 Bye
