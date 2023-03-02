@@ -69,11 +69,12 @@ class TestCase:
         return True
 
 
-def parse():
+def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--until', type=int, default=1000)
     parser.add_argument('-l', '--lab', type=int, default=5)
     parser.add_argument('-o', '--output', action='store_true')
+    parser.add_argument('-a', '--all', action='store_true')
     parser.add_argument('-d', '--dir', type=str, default='dbtrain-lab')
     args = parser.parse_args()
     return args
@@ -90,14 +91,17 @@ def get_test_cases(until, test_file_names, base_dir):
 
 
 def main():
-    args = parse()
+    args = parse_args()
+    labs = [1, 2, 3, 4, 5] if args.all else [args.lab]
+    test_cases = []
 
-    base_dir = Path(__file__).parent.resolve() / f'lab{args.lab}'
-    if not (base_dir / 'tmp').is_dir():
-        (base_dir / 'tmp').mkdir()
-    test_file_names = sorted((base_dir / 'test').glob('*.sql'))
-    assert len(test_file_names) > 0
-    test_cases = get_test_cases(args.until, test_file_names, base_dir)
+    for lab in labs:
+        base_dir = Path(__file__).parent.resolve() / f'lab{lab}'
+        if not (base_dir / 'tmp').is_dir():
+            (base_dir / 'tmp').mkdir()
+        test_file_names = sorted((base_dir / 'test').glob('*.sql'))
+        assert len(test_file_names) > 0
+        test_cases += get_test_cases(args.until, test_file_names, base_dir)
 
     success_count = 0
     failure_count = 0
