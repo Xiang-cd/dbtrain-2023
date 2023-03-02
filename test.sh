@@ -13,7 +13,7 @@ cmake .. || { echo -e "${RED}Cmake Error${NC}"; exit 1; }
 make -j16 -l${MAX_LOAD_AVERAGE:-40} || { echo -e "${RED}Compile Error${NC}"; exit 1; }
 
 cd ${RUNNER_TEST_WORKSPACE}
-python3 check.py -l ${LAB} -o || FAIL=1
+python3 check.py -a -l ${LAB} -o || FAIL=1
 
 if [ ${SEND_RESULT:-0} -eq 1 -a -e report.json ]; then
     echo -e "${GREEN}Start to send result${NC}"
