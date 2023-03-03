@@ -23,7 +23,7 @@ class TestCase:
         self.success = False
 
     def run(self, dir: str):
-        subprocess.call([self.base_dir / '..' / '..' / dir / 'build' / 'bin' / 'thdb', '-s'], stdin=open(self.filename), stdout=open(self.tmp_result_file, 'w'), stderr=open('/dev/null'))
+        subprocess.call([self.base_dir / '..' / '..' / dir / 'build' / 'bin' / 'cli', '-s'], stdin=open(self.filename), stdout=open(self.tmp_result_file, 'w'), stderr=open('/dev/null'))
 
     def print_mismatch(self, expected: str, got: str):
         print(f'{YELLOW}Expected:{NC}')
