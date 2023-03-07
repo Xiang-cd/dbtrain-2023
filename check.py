@@ -8,13 +8,16 @@ import subprocess
 import sys
 import traceback
 
+DEFAULT_LABS = 1
+
 RED = '\033[1;31m'
 GREEN = '\033[1;32m'
 YELLOW = '\033[1;33m'
 NC = '\033[0m'
 
 class TestCase:
-    def __init__(self, name: str, base_dir: Path, filename: Path):
+    def __init__(self, lab:str, name: str, base_dir: Path, filename: Path):
+        self.lab = lab
         self.name = name
         self.base_dir = base_dir
         self.filename = filename
@@ -72,27 +75,27 @@ class TestCase:
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--until', type=int, default=1000)
-    parser.add_argument('-l', '--lab', type=int, default=5)
+    parser.add_argument('-l', '--lab', type=int, default=DEFAULT_LABS)
     parser.add_argument('-o', '--output', action='store_true')
-    parser.add_argument('-a', '--all', action='store_true')
     parser.add_argument('-d', '--dir', type=str, default='dbtrain-lab')
     args = parser.parse_args()
     return args
 
 
-def get_test_cases(until, test_file_names, base_dir):
+def get_test_cases(lab, lab_max, until, test_file_names, base_dir):
     test_cases = []
     for test_file_name in test_file_names:
         test_name = test_file_name.stem
         test_index = int(test_name.split('_')[0])
-        if test_index <= until:
-            test_cases.append(TestCase(test_name, base_dir, test_file_name))
+        if lab < lab_max or test_index <= until:
+            test_cases.append(TestCase(lab, test_name, base_dir, test_file_name))
     return test_cases
 
 
 def main():
     args = parse_args()
-    labs = [1, 2, 3, 4, 5] if args.all else [args.lab]
+    lab_max = args.lab
+    labs = range(1, lab_max + 1)
     test_cases = []
 
     for lab in labs:
@@ -101,7 +104,7 @@ def main():
             (base_dir / 'tmp').mkdir()
         test_file_names = sorted((base_dir / 'test').glob('*.sql'))
         assert len(test_file_names) > 0
-        test_cases += get_test_cases(args.until, test_file_names, base_dir)
+        test_cases += get_test_cases(int(lab), lab_max, args.until, test_file_names, base_dir)
 
     success_count = 0
     failure_count = 0
@@ -110,11 +113,11 @@ def main():
         try:
             if test_case.check():
                 success_count += 1
-                print(f'Test {test_case.name} {GREEN}PASSED{NC}')
+                print(f'lab{test_case.lab} Test {test_case.name} {GREEN}PASSED{NC}')
                 print()
             else:
                 failure_count += 1
-                print(f'Test {test_case.name} {RED}FAILED{NC}')
+                print(f'lab{test_case.lab} Test {test_case.name} {RED}FAILED{NC}')
                 print()
         except Exception:
             traceback.print_exc(file=sys.stdout)
