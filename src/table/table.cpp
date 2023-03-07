@@ -130,6 +130,7 @@ void Table::InsertRecord(Record *record) {
   // TIPS: 若不为NULL_PAGE，则调用GetPage()获取meta_.first_free_页面
   // TIPS: 调用page_handler的InsertRecord()方法插入记录
   // TIPS: 若当前页面已满，则将meta_.first_free_设为下一个有空位的页面，同时将meta_modified设为true
+  // TIPS: 注意同名函数，不同LAB中基于参数不同使用对应的函数
   // LAB 1 BEGIN
   // LAB 1 END
 }
@@ -151,6 +152,7 @@ void Table::DeleteRecord(const Rid &rid) {
   // TIPS: 利用PageID查找对应的页面，通过PageHandle解析页面
   // TIPS: 利用DeleteRecord删除对应SlotID的记录
   // TIPS: 注意更新Meta的first_free_信息
+  // TIPS: 注意同名函数，不同LAB中基于参数不同使用对应的函数
   // LAB 1 BEGIN
   // LAB 1 END
 }
