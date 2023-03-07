@@ -1,0 +1,14 @@
+stages:
+  - test
+
+test_oj:
+  stage: test
+  script:
+    - dir_name=$(date +'%y%m%d%H%M%S%6N')-${CI_PROJECT_NAME}
+    - >
+      git clone https://gitlab-ci-token:${TEST_REPO_TOKEN}@git.tsinghua.edu.cn/dbtrain/dbtrain-lab-test.git
+      ${RUNNER_TEST_WORKSPACE}/${dir_name}/dbtrain-lab-test
+    - mkdir -p ${RUNNER_TEST_WORKSPACE}/${dir_name}/dbtrain-lab
+    - cp -r src *.txt ${RUNNER_TEST_WORKSPACE}/${dir_name}/dbtrain-lab/
+    - cd ${RUNNER_TEST_WORKSPACE}/${dir_name}/dbtrain-lab-test
+    - bash test.sh
