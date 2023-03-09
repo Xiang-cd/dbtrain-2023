@@ -1,0 +1,19 @@
+.DS_Store
+
+.vscode
+.idea
+
+build
+test/*
+
+dbtrain
+dbtrain_test
+
+lex.yy.cpp
+sql.tab.h
+sql.tab.cpp
+
+# Patch files
+*.patch
+clear.sh
+TODO.md

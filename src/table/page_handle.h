@@ -30,7 +30,8 @@ class PageHandle {
   void DeleteRecord(SlotID slot_no);
   void UpdateRecord(SlotID slot_no, Record *record);
   RecordList LoadRecords();
-  // 新增部分函数方便后续实验
+
+  // LAB 2: 新增部分函数方便后续实验
   uint8_t *GetRaw(SlotID slot_no);
   Record *GetRecord(SlotID slot_no);
 
@@ -38,7 +39,7 @@ class PageHandle {
   void DeleteRecord(SlotID slot_no, LSN lsn);
   void UpdateRecord(SlotID slot_no, const void *data, LSN lsn);
 
-  // MVCC接口
+  // LAB 3: MVCC接口
   void InsertRecord(Record *record, XID xid);
   // 第三个参数没有实际含义，仅用于区分重载函数 DeleteRecord(SlotID slot_no, LSN lsn)
   void DeleteRecord(SlotID, XID xid, bool);
