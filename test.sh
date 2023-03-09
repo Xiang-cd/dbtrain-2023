@@ -4,7 +4,7 @@ GREEN='\033[1;32m'
 NC='\033[0m'
 
 cd ../dbtrain-lab
-LAB=5
+LAB=1
 if [ -e LAB.txt ]; then
     LAB=$(cat LAB.txt)
 fi
