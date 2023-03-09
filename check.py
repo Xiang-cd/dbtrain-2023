@@ -8,7 +8,7 @@ import subprocess
 import sys
 import traceback
 
-DEFAULT_LABS = 1
+DEFAULT_LAB = 1
 
 RED = '\033[1;31m'
 GREEN = '\033[1;32m'
@@ -75,7 +75,7 @@ class TestCase:
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--until', type=int, default=1000)
-    parser.add_argument('-l', '--lab', type=int, default=DEFAULT_LABS)
+    parser.add_argument('-l', '--lab', type=int, default=DEFAULT_LAB)
     parser.add_argument('-o', '--output', action='store_true')
     parser.add_argument('-d', '--dir', type=str, default='dbtrain-lab')
     args = parser.parse_args()
@@ -104,7 +104,7 @@ def main():
             (base_dir / 'tmp').mkdir()
         test_file_names = sorted((base_dir / 'test').glob('*.sql'))
         assert len(test_file_names) > 0
-        test_cases += get_test_cases(int(lab), lab_max, args.until, test_file_names, base_dir)
+        test_cases += get_test_cases(lab, lab_max, args.until, test_file_names, base_dir)
 
     success_count = 0
     failure_count = 0
