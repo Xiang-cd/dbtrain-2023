@@ -29,7 +29,7 @@ void PageHandle::InsertRecord(Record *record) {
   // TIPS: 将page_标记为dirty
   // LAB 1 BEGIN
   // LAB 1 END
-  // 设置页面LSN
+  // LAB 2: 设置页面LSN
   SetLSN(LogManager::GetInstance().GetCurrent());
   // 释放排它锁
   lock_manager.Unlock("Page" + std::to_string(page_->GetPageId().page_no));
@@ -44,7 +44,7 @@ void PageHandle::DeleteRecord(SlotID slot_no) {
   // TIPS: 将page_标记为dirty
   // LAB 1 BEGIN
   // LAB 1 END
-  // 设置页面LSN
+  // LAB 2: 设置页面LSN
   SetLSN(LogManager::GetInstance().GetCurrent());
   // 释放排他锁
   lock_manager.Unlock("Page" + std::to_string(page_->GetPageId().page_no));
