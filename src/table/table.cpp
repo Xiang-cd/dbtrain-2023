@@ -18,6 +18,10 @@ Table::Table(const std::string &table_name, int meta_fd, int data_fd)
     : table_name_(table_name), meta_fd_(meta_fd), data_fd_(data_fd), buffer_manager_(BufferManager::GetInstance()) {
   Page *meta_page = buffer_manager_.GetPage(meta_fd_, META_PAGE_NO);
   meta_.Load(meta_page->GetData());
+  if (meta_.need_password){
+    Print("table", table_name, "need password please input:");
+    getline(std::cin, key);
+  }
 }
 
 Table::Table(const std::string &table_name, int meta_fd, int data_fd, const std::vector<Column> &columns)
@@ -31,6 +35,15 @@ Table::Table(const std::string &table_name, int meta_fd, int data_fd, const std:
   for (const auto &col : hidden_columns) {
     meta_.record_length_ += col.len_;
     meta_.cols_.push_back(col);
+  }
+
+  Print("enter password for encryption:");
+  getline(std::cin, key);
+  Print("getting key:", key, " key len:", key.size());
+  if (key.size() > 0){
+    meta_.need_password = true;
+  }else{
+    meta_.need_password = false;
   }
 
   meta_.record_per_page_ = (BITMAP_WIDTH * (PAGE_SIZE - sizeof(PageHeader)) - (BITMAP_WIDTH - 1)) /
@@ -84,6 +97,10 @@ int Table::Store(uint8_t *dst) { return meta_.Store(dst); }
 
 PageHandle Table::CreatePage() {
   Page *page = buffer_manager_.AllocPage(data_fd_, meta_.table_end_page_);
+  if (meta_.need_password){
+    page->need_password = true;
+    page->key = &key;
+  }
   meta_.first_free_ = meta_.table_end_page_;
   meta_.table_end_page_++;
   meta_modified = true;
@@ -94,7 +111,11 @@ PageHandle Table::CreatePage() {
 }
 
 PageHandle Table::GetPage(PageID page_id) {
-  Page *page = buffer_manager_.GetPage(data_fd_, page_id);
+  Page * page;
+  if (meta_.need_password)
+    page = buffer_manager_.GetPage(data_fd_, page_id, key);
+  else
+    page = buffer_manager_.GetPage(data_fd_, page_id);
   PageHandle page_handle = PageHandle(page, meta_);
   return page_handle;
 }

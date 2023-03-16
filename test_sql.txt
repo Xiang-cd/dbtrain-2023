@@ -1,0 +1,14 @@
+drop database if exists dbtrain_test;
+create database dbtrain_test;
+use dbtrain_test;
+create table t_basic(id int, age int, name char(10), score float);
+
+show tables;
+insert into t_basic values(1, 1, 'a', 1.0);
+insert into t_basic values(2, 2, 'b', 2.0);
+select * from t_basic;
+
+
+
+use dbtrain_test;
+select * from t_basic;

@@ -18,6 +18,7 @@ class BufferManager {
   static BufferManager &GetInstance();
   Page *AllocPage(int fd, PageID page_no);
   Page *GetPage(int fd, PageID page_no);
+  Page *GetPage(int fd, PageID page_no, std::string key);
   void Clear();  // Used for crash test
   void FlushFile(int fd);
   void FlushAll();

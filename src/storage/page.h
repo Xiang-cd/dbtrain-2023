@@ -20,12 +20,13 @@ class Page {
   friend class BufferManager;
 
  public:
-  Page() : is_dirty_(false) {}
+  Page() : is_dirty_(false), need_password(false) {}
   ~Page() = default;
   void SetDirty() { is_dirty_ = true; }
   uint8_t *GetData() { return data_; }
   FilePageId GetPageId() { return page_id_; }
-
+  std::string * key;
+  bool need_password;
  private:
   FilePageId page_id_;
   uint8_t data_[PAGE_SIZE];

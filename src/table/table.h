@@ -45,7 +45,7 @@ class Table {
 
  private:
   TableMeta meta_;
-
+  std::string key;
   std::string table_name_;
   int data_fd_;
   int meta_fd_;
