@@ -10,6 +10,7 @@
 #include "result/result.h"
 #include "table/hidden.h"
 #include "tx/tx_manager.h"
+#include "utils/debug-print.hpp"
 
 namespace dbtrain {
 
@@ -131,6 +132,23 @@ void Table::InsertRecord(Record *record) {
   // TIPS: 调用page_handler的InsertRecord()方法插入记录
   // TIPS: 若当前页面已满，则将meta_.first_free_设为下一个有空位的页面，同时将meta_modified设为true
   // LAB 1 BEGIN
+  if (meta_.first_free_ == NULL_PAGE){
+    PageHandle PH = CreatePage();
+    PH.InsertRecord(record);
+    if (PH.Full()){
+      meta_.first_free_ = PH.GetNextFree();
+      meta_modified = true;
+    }
+  }
+  else{
+    PageHandle PH = GetPage(meta_.first_free_);
+    PH.InsertRecord(record);
+    if (PH.Full()){
+      meta_.first_free_ = PH.GetNextFree();
+      meta_modified = true;
+    }
+  }
+
   // LAB 1 END
 }
 
@@ -152,6 +170,10 @@ void Table::DeleteRecord(const Rid &rid) {
   // TIPS: 利用DeleteRecord删除对应SlotID的记录
   // TIPS: 注意更新Meta的first_free_信息
   // LAB 1 BEGIN
+  PageHandle PH = GetPage(rid.page_no);
+  PH.DeleteRecord(rid.slot_no);
+  meta_.first_free_ = rid.page_no;
+  meta_modified = true;
   // LAB 1 END
 }
 
@@ -173,6 +195,8 @@ void Table::UpdateRecord(const Rid &rid, Record *record) {
   // TIPS: 利用PageID查找对应的页面，通过PageHandle解析页面
   // TIPS: 利用UpdateRecord更新对应SlotID的记录为record
   // LAB 1 BEGIN
+  PageHandle PH = GetPage(rid.page_no);
+  PH.UpdateRecord(rid.slot_no, record);
   // LAB 1 END
 }
 

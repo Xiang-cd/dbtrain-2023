@@ -16,11 +16,11 @@ class RecordFactory {
   RecordFactory(const TableMeta *meta);
   ~RecordFactory();
 
-  Record *LoadRecord(const void *src) const;
-  void StoreRecord(void *dst, Record *record) const;
+  Record *LoadRecord(const uint8_t *src) const;
+  void StoreRecord(uint8_t *dst, Record *record) const;
 
-  static Field *LoadField(const void *src, FieldType ft, FieldSize fs);
-  static void StoreField(void *dst, Field *field, FieldType ft, FieldSize fs);
+  static Field *LoadField(const uint8_t *src, FieldType ft, FieldSize fs);
+  static void StoreField(uint8_t *dst, Field *field, FieldType ft, FieldSize fs);
 
   // TIPS: 隐藏列操作
   static Rid GetRid(Record *record);

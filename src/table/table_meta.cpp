@@ -13,19 +13,28 @@ int TableMeta::Load(const uint8_t *src) {
   vector<Column>().swap(cols_);
   int index = 0;
   unsigned col_num = *(unsigned *) src;
-  Print("loaded col_num:", col_num);
   index += sizeof (unsigned );
+
+  memcpy( &record_length_,src + index, sizeof (int ));
+  index += sizeof (int);
+  memcpy( &record_per_page_, src + index,sizeof (int ));
+  index += sizeof (int);
+  memcpy( &table_end_page_, src + index,sizeof (int ));
+  index += sizeof (int);
+  memcpy( &first_free_, src + index, sizeof (int ));
+  index += sizeof (int);
+  memcpy( &bitmap_length_, src + index, sizeof (int ));
+  index += sizeof (int);
+
   for (int i = 0; i < col_num; ++i) {
       Column col = Column();
       memcpy(&col, src+index, 16);
       index += 16;
       unsigned str_len = *(unsigned *) (src + index);
       index += sizeof (unsigned );
-//      Print("loaded str len:", str_len);
       char name[str_len];
       memcpy(&name, src + index, str_len);
       col.name_ = string(name);
-//      Print("name:", col.name_);
       index += str_len;
       cols_.push_back(col);
   }
@@ -41,17 +50,26 @@ int TableMeta::Store(uint8_t *dst) {
     int index = 0;
     unsigned col_num = cols_.size();
     memcpy(dst, &col_num, sizeof (unsigned ));
-//    Print("stroed col_num:", col_num);
     index += sizeof (unsigned );
+
+    memcpy(dst + index, &record_length_, sizeof (int ));
+    index += sizeof (int);
+    memcpy(dst + index, &record_per_page_, sizeof (int ));
+    index += sizeof (int);
+    memcpy(dst + index, &table_end_page_, sizeof (int ));
+    index += sizeof (int);
+    memcpy(dst + index, &first_free_, sizeof (int ));
+    index += sizeof (int);
+    memcpy(dst + index, &bitmap_length_, sizeof (int ));
+    index += sizeof (int);
+
 
     for (auto col: cols_){
         memcpy(dst+index, &col, 16);
         index += 16;
         unsigned str_len = col.name_.size() + 1;
-//        Print("str len:", str_len);
         memcpy(dst+index, &str_len, sizeof (unsigned ));
         index += sizeof (unsigned );
-//        Print("name:", col.name_);
         strcpy((char*)dst+index, col.name_.c_str());
         index += str_len;
     }

@@ -2,7 +2,7 @@
 
 #include <cassert>
 #include <set>
-
+#include "utils/debug-print.hpp"
 #include "record/record_factory.h"
 #include "tx/lock_manager.h"
 
@@ -28,6 +28,16 @@ void PageHandle::InsertRecord(Record *record) {
   // TIPS: 将bitmap_的第一个空槽标记为已使用
   // TIPS: 将page_标记为dirty
   // LAB 1 BEGIN
+  SlotID slot_no = bitmap_.FirstFree();
+  PageID page_no = page_->GetPageId().page_no;
+  RecordFactory RF = RecordFactory(&meta_);
+  RF.SetRid(record, {page_no, slot_no});
+  RF.StoreRecord(slots_ + record_length_ * slot_no, record);
+
+  bitmap_.Set(slot_no);
+  page_->SetDirty();
+
+
   // LAB 1 END
   // LAB 2: 设置页面LSN
   SetLSN(LogManager::GetInstance().GetCurrent());
@@ -43,6 +53,8 @@ void PageHandle::DeleteRecord(SlotID slot_no) {
   // TIPS: 直接设置bitmap_为0即可删除对应记录
   // TIPS: 将page_标记为dirty
   // LAB 1 BEGIN
+  bitmap_.Reset(slot_no);
+  page_->SetDirty();
   // LAB 1 END
   // LAB 2: 设置页面LSN
   SetLSN(LogManager::GetInstance().GetCurrent());
@@ -58,6 +70,9 @@ void PageHandle::UpdateRecord(SlotID slot_no, Record *record) {
   // TIPS: 由于使用了定长数据管理，可以利用新的record序列化结果覆盖对应页面数据
   // TIPS: 将page_标记为dirty
   // LAB 1 BEGIN
+  RecordFactory RF = RecordFactory(&meta_);
+  RF.StoreRecord(slots_ + record_length_ * slot_no, record);
+  page_->SetDirty();
   // LAB 1 END
   // 设置页面LSN
   SetLSN(LogManager::GetInstance().GetCurrent());
