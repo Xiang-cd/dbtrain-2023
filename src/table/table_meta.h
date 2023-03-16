@@ -35,6 +35,7 @@ class TableMeta {
   int table_end_page_; // 表的最后一页 / 表的总页面数
   PageID first_free_; // 第一个有空闲槽位的页面
   int bitmap_length_; // 页头 bitmap 的长度
+  bool need_password;
 
   friend class Table;
   friend class PageHandle;

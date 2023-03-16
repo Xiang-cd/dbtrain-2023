@@ -58,7 +58,9 @@ Table::~Table() {
     Store(meta_page->GetData());
     meta_page->SetDirty();
   }
+//  Print("table", table_name_," flushiing file");
   buffer_manager_.FlushFile(meta_fd_);
+//  Print("table", table_name_," flushiing meta");
   buffer_manager_.FlushFile(data_fd_);
 }
 

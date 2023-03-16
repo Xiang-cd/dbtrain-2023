@@ -1,7 +1,7 @@
 #include "buffer_manager.h"
 
 #include <cassert>
-
+#include "utils/debug-print.hpp"
 namespace dbtrain {
 
 BufferManager::BufferManager() : disk_manager_(DiskManager::GetInstance()), log_manager_(LogManager::GetInstance()) {
@@ -24,6 +24,7 @@ Page *BufferManager::AllocPage(int fd, PageID page_no) {
 
 Page *BufferManager::GetPage(int fd, PageID page_no) {
   Page *page;
+//  Print("buffer manager getting page");
   FilePageId page_id = {fd, page_no};
   auto iter_page = hashmap_.find(page_id);
   if (iter_page != hashmap_.end()) {
@@ -66,6 +67,7 @@ void BufferManager::FlushAll() {
 bool BufferManager::PageInCache(const FilePageId file_page_id) { return hashmap_.count(file_page_id) > 0; }
 
 void BufferManager::FlushPage(Page *page) {
+//  Print("buffer namager flush page");
   assert(PageInCache(page->page_id_));
   WriteBack(page);
   int frame_no = hashmap_[page->page_id_];
