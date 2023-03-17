@@ -4,5 +4,6 @@
 #include "float_field.h"
 #include "int_field.h"
 #include "str_field.h"
+#include "var_char_field.h"
 
 #endif

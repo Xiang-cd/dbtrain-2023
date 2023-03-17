@@ -26,7 +26,7 @@ int TableMeta::Load(const uint8_t *src) {
   memcpy( &bitmap_length_, src + index, sizeof (int ));
   index += sizeof (int);
 
-  memcpy( &need_password, src + index, sizeof (bool));
+  memcpy( &is_var, src + index, sizeof (bool));
   index += sizeof (bool);
 
   for (int i = 0; i < col_num; ++i) {
@@ -66,7 +66,7 @@ int TableMeta::Store(uint8_t *dst) {
     memcpy(dst + index, &bitmap_length_, sizeof (int ));
     index += sizeof (int);
 
-    memcpy(dst + index, &need_password, sizeof (bool));
+    memcpy(dst + index, &is_var, sizeof (bool));
     index += sizeof (bool);
 
 

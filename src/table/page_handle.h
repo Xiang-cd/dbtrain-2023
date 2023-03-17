@@ -15,6 +15,14 @@ namespace dbtrain {
 struct PageHeader {
   LSN page_lsn;
   PageID next_free;
+  SlotID num_record;
+  int offset_of_free;
+};
+
+struct Position {
+  // 变长记录的长度, 变长记录所在的偏移量
+  int len;
+  int offset;
 };
 
 class PageHandle {
@@ -58,6 +66,7 @@ class PageHandle {
   PageHeader *header_;
   int record_length_;
   uint8_t *slots_;
+  Position * positions;
   Page *page_;
   TableMeta meta_;
 };

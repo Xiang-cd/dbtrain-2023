@@ -19,7 +19,7 @@ class Record {
   void Display() const;
   std::vector<std::string> ToString() const;
 
- private:
+ public:
   vector<Field *> field_list_;
 
   friend class RecordFactory;

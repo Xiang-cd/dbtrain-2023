@@ -16,7 +16,7 @@ namespace ast {
 
 class Visitor;
 
-enum class SvType { SV_TYPE_INT, SV_TYPE_FLOAT, SV_TYPE_STRING };
+enum class SvType { SV_TYPE_INT, SV_TYPE_FLOAT, SV_TYPE_STRING, SV_TYPE_VARCHAR };
 
 enum class SvOp { SV_OP_EQ, SV_OP_LT, SV_OP_GT, SV_OP_LE, SV_OP_GE, SV_OP_NE };
 

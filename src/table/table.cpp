@@ -23,8 +23,12 @@ Table::Table(const std::string &table_name, int meta_fd, int data_fd)
 Table::Table(const std::string &table_name, int meta_fd, int data_fd, const std::vector<Column> &columns)
     : table_name_(table_name), meta_fd_(meta_fd), data_fd_(data_fd), buffer_manager_(BufferManager::GetInstance()) {
   meta_.record_length_ = 0;
+  meta_.is_var = false;
   for (auto &col : columns) {
     meta_.record_length_ += col.len_;
+    if (col.type_ == FieldType::VCHAR) {
+      meta_.is_var = true;
+    }
     meta_.cols_.push_back(col);
   }
   // 元信息添加隐藏列
@@ -58,9 +62,9 @@ Table::~Table() {
     Store(meta_page->GetData());
     meta_page->SetDirty();
   }
-//  Print("table", table_name_," flushiing file");
+  //  Print("table", table_name_," flushiing file");
   buffer_manager_.FlushFile(meta_fd_);
-//  Print("table", table_name_," flushiing meta");
+  //  Print("table", table_name_," flushiing meta");
   buffer_manager_.FlushFile(data_fd_);
 }
 
@@ -89,7 +93,12 @@ PageHandle Table::CreatePage() {
   meta_modified = true;
   PageHandle page_handle = PageHandle(page, meta_);
   page_handle.header_->next_free = NULL_PAGE;
-  page_handle.bitmap_.Init();
+  page_handle.header_->num_record = 0;
+  if (meta_.is_var){
+    page_handle.header_->offset_of_free = PAGE_SIZE;
+  }else{
+    page_handle.bitmap_.Init();
+  }
   return page_handle;
 }
 
@@ -105,9 +114,16 @@ void Table::InsertRecord(Record *record) {
   }
   for (size_t i = 0; i < record->GetSize(); i++) {
     if (meta_.cols_[i].type_ != record->GetField(i)->GetType()) {
+      if (meta_.cols_[i].type_ == FieldType::VCHAR and record->GetField(i)->GetType() == FieldType::STRING) {
+        Print("need turn string to vchar");
+        StrField *f = dynamic_cast<StrField *>(record->GetField(i));
+        record->field_list_[i] = new VarCharField(f);
+        continue;
+      }
       throw InvalidInsertTypeError(type2str[record->GetField(i)->GetType()], type2str[meta_.cols_[i].type_]);
     }
-    if (meta_.cols_[i].type_ == FieldType::STRING && meta_.cols_[i].len_ < record->GetField(i)->GetSize()) {
+    if ((meta_.cols_[i].type_ == FieldType::STRING or meta_.cols_[i].type_ == FieldType::VCHAR) &&
+        meta_.cols_[i].len_ < record->GetField(i)->GetSize()) {
       throw InvalidInsertStringLenError(record->GetField(i)->GetSize(), meta_.cols_[i].len_);
     }
   }
@@ -134,18 +150,18 @@ void Table::InsertRecord(Record *record) {
   // TIPS: 调用page_handler的InsertRecord()方法插入记录
   // TIPS: 若当前页面已满，则将meta_.first_free_设为下一个有空位的页面，同时将meta_modified设为true
   // LAB 1 BEGIN
-  if (meta_.first_free_ == NULL_PAGE){
+
+  if (meta_.first_free_ == NULL_PAGE) {
     PageHandle PH = CreatePage();
     PH.InsertRecord(record);
-    if (PH.Full()){
+    if (PH.Full()) {
       meta_.first_free_ = PH.GetNextFree();
       meta_modified = true;
     }
-  }
-  else{
+  } else {
     PageHandle PH = GetPage(meta_.first_free_);
     PH.InsertRecord(record);
-    if (PH.Full()){
+    if (PH.Full()) {
       meta_.first_free_ = PH.GetNextFree();
       meta_modified = true;
     }

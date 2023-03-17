@@ -27,7 +27,7 @@ using namespace dbtrain::ast;
 
 %token <sv_int> VALUE_INT
 %token <sv_float> VALUE_FLOAT
-%token <sv_str> VALUE_STRING IDENTIFIER
+%token <sv_str> VALUE_STRING IDENTIFIER VALUE_VARCHAR
 
 %type <sv_node> stmt select_stmt explainable_stmt
 %type <sv_bool> opt_if_exists
@@ -252,7 +252,7 @@ col_type:
         }
     |   VARCHAR '(' VALUE_INT ')'
         {
-            $$ = std::make_shared<TypeLen>(SvType::SV_TYPE_STRING, $3);
+            $$ = std::make_shared<TypeLen>(SvType::SV_TYPE_VARCHAR, $3);
         }
     ;
 

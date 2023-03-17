@@ -34,22 +34,28 @@ Field *RecordFactory::LoadField(const uint8_t *src, FieldType ft, FieldSize fs) 
   // TODO: 字段反序列化
   // TIPS: 利用Field的Load函数，分类返回对应类型的Field指针
   // LAB 1 BEGIN
-  if (ft == FieldType::INT){
-    IntField * f = new IntField();
+  if (ft == FieldType::INT) {
+    IntField *f = new IntField();
     f->Load(src, fs);
     return f;
 
-  }else if (ft == FieldType::FLOAT) {
-    FloatField * f = new FloatField();
+  } else if (ft == FieldType::FLOAT) {
+    FloatField *f = new FloatField();
     f->Load(src, fs);
     return f;
 
-  }else if (ft == FieldType::STRING) {
-    StrField * f = new StrField(fs);
+  } else if (ft == FieldType::STRING) {
+    StrField *f = new StrField(fs);
     f->Load(src, fs);
     return f;
 
-  }else {
+  } else if (ft == FieldType::VCHAR) {
+    int len = *(int * )src;
+    Print("actual load varchar len:", len);
+    VarCharField *f = new VarCharField(len);
+    f->Load(src + sizeof(int), len);
+    return f;
+  } else {
     throw "not supported field type";
   }
 
@@ -60,16 +66,24 @@ void RecordFactory::StoreField(uint8_t *dst, Field *field, FieldType ft, FieldSi
   // TODO: 字段序列化
   // TIPS: 利用Field的Store函数
   // LAB 1 BEGIN
-  if (ft == FieldType::INT){
-      IntField * f = dynamic_cast<IntField *>(field);
-      f->Store(dst, fs);
-  }else if (ft == FieldType::FLOAT) {
-      FloatField * f = dynamic_cast<FloatField *>(field);
-      f->Store(dst, fs);
-  }else if (ft == FieldType::STRING) {
-      StrField * f = dynamic_cast<StrField *>(field);
-      f->Store(dst, fs);
-  }else {
+  if (ft == FieldType::INT) {
+    IntField *f = dynamic_cast<IntField *>(field);
+    f->Store(dst, fs);
+  } else if (ft == FieldType::FLOAT) {
+    FloatField *f = dynamic_cast<FloatField *>(field);
+    f->Store(dst, fs);
+  } else if (ft == FieldType::STRING) {
+    StrField *f = dynamic_cast<StrField *>(field);
+    Print("store fs:", fs, " actual fs:", f->GetSize());
+    f->Store(dst, fs);
+  } else if (ft == FieldType::VCHAR) {
+    VarCharField *f = dynamic_cast<VarCharField *>(field);
+    Print("string varchar, actual store len:", f->GetSize(), "total stroe len:", f->GetSize() + sizeof(int));
+    int len = f->GetSize();
+    memcpy(dst, &len, sizeof(int));
+    dst += sizeof(int);
+    f->Store(dst, len);
+  } else {
     throw "not supported field type";
   }
   // LAB 1 END
@@ -79,15 +93,19 @@ Record *RecordFactory::LoadRecord(const uint8_t *src) const {
   // TODO: 记录反序列化
   // TIPS: 通过TableMeta可以读取各个字段的属性和长度，利用LoadField函数建立各个字段对应的Field指针。
   // LAB 1 BEGIN
-  Record * r = new Record();
+  Record *r = new Record();
   int col_num = meta_->cols_.size();
   for (int i = 0; i < col_num; ++i) {
     FieldType ft = meta_->cols_[i].type_;
     FieldSize fs = meta_->cols_[i].len_;
-    r->field_list_.push_back(LoadField(src, ft, fs));
-    src += fs;
+    Field * f = LoadField(src, ft, fs);
+    r->field_list_.push_back(f);
+    if (ft == FieldType::VCHAR){
+      src += f->GetSize() + sizeof(int);
+    }else
+      src += fs;
   }
-  return  r;
+  return r;
   // LAB 1 END
 }
 
@@ -102,7 +120,10 @@ void RecordFactory::StoreRecord(uint8_t *dst, Record *record) const {
     FieldType ft = meta_->cols_[i].type_;
     FieldSize fs = meta_->cols_[i].len_;
     StoreField(dst, record->field_list_[i], ft, fs);
-    dst += fs;
+    if (ft == FieldType::VCHAR){
+      dst += (record->field_list_[i]->GetSize() + sizeof(int));
+    }else
+      dst += fs;
   }
   // LAB 1 END
 }

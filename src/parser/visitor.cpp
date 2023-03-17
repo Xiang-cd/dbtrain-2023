@@ -15,6 +15,7 @@
 #include "result/print_buffer.h"
 #include "result/result.h"
 #include "system/system_manager.h"
+#include "utils/debug-print.hpp"
 
 namespace dbtrain {
 
@@ -22,7 +23,8 @@ namespace ast {
 
 std::unordered_map<ast::SvType, FieldType> type_map = {{ast::SvType::SV_TYPE_INT, FieldType::INT},
                                                        {ast::SvType::SV_TYPE_FLOAT, FieldType::FLOAT},
-                                                       {ast::SvType::SV_TYPE_STRING, FieldType::STRING}};
+                                                       {ast::SvType::SV_TYPE_STRING, FieldType::STRING},
+                                                       {ast::SvType::SV_TYPE_VARCHAR, FieldType::VCHAR}};
 
 Visitor::~Visitor() {
   for (const auto &pair : declared_sqls_) {

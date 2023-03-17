@@ -51,13 +51,14 @@ using std::pair;
 using std::string;
 using std::vector;
 
-enum class FieldType { INT, FLOAT, STRING, DATE, BLOB };
+enum class FieldType { INT, FLOAT, STRING, DATE, BLOB, VCHAR };
 
 static std::unordered_map<FieldType, std::string> type2str = {{FieldType::INT, "INT"},
                                                               {FieldType::FLOAT, "FLOAT"},
                                                               {FieldType::DATE, "DATE"},
                                                               {FieldType::STRING, "STRING"},
-                                                              {FieldType::BLOB, "BLOB"}};
+                                                              {FieldType::BLOB, "BLOB"},
+                                                              {FieldType::VCHAR, "type VARCHAR"}};
 
 struct Rid {
   PageID page_no;

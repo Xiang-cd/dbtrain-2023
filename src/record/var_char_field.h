@@ -1,15 +1,17 @@
-#ifndef DBTRAIN_STRING_RECORD_H
-#define DBTRAIN_STRING_RECORD_H
+#ifndef DBTRAIN_varchar_RECORD_H
+#define DBTRAIN_varchar_RECORD_H
 
 #include "field.h"
+#include "str_field.h"
 
 namespace dbtrain {
 
-class StrField : public Field {
+class VarCharField : public Field {
  public:
-  StrField(const char *src, int size);
-  StrField(int size);
-  ~StrField();
+  VarCharField(const char *src, int size);
+  VarCharField(int size);
+  VarCharField(const StrField *f);
+  ~VarCharField();
   virtual void Load(const void *src, int s = 0) override;
   virtual void Store(void *dst, int s = 0) const override;
   virtual FieldType GetType() const override;
@@ -20,7 +22,7 @@ class StrField : public Field {
   virtual std::string ToString() const override;
   string GetValue() const;
 
- public:
+ protected:
   char *val_;
 };
 

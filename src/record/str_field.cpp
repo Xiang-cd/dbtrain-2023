@@ -1,7 +1,7 @@
 #include "str_field.h"
 
 #include "exception/record_exceptions.h"
-
+#include "utils/debug-print.hpp"
 namespace dbtrain {
 
 StrField::StrField(const char *src, int size) {
@@ -26,6 +26,7 @@ void StrField::Store(void *dst, int s) const {
   if (s <= size_ + 1) {
     memcpy(dst, val_, s);
   } else {
+    Print("too long store len, cliping", s, " ", size_ +1);
     memcpy(dst, val_, size_ + 1);
   }
 }
