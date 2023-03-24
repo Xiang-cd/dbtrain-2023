@@ -8,7 +8,6 @@
 namespace dbtrain {
 
 VarCharField::VarCharField(const char *src, int size) {
-  Print("var char constructed");
   size_ = size;
   val_ = new char[size_ + 1];
   val_[size_] = '\0';
@@ -16,13 +15,11 @@ VarCharField::VarCharField(const char *src, int size) {
 }
 
 VarCharField::VarCharField(const StrField *f) {
-  Print("var char constructed");
   size_ = f->GetSize();
   val_ = f->val_;
 }
 
 VarCharField::VarCharField(int size) {
-  Print("var char constructed");
   size_ = size;
   val_ = new char[size_ + 1];
   val_[size_] = '\0';

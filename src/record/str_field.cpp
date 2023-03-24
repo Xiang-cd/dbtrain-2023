@@ -26,7 +26,6 @@ void StrField::Store(void *dst, int s) const {
   if (s <= size_ + 1) {
     memcpy(dst, val_, s);
   } else {
-    Print("too long store len, cliping", s, " ", size_ +1);
     memcpy(dst, val_, size_ + 1);
   }
 }

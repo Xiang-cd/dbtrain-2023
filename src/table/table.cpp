@@ -94,6 +94,7 @@ PageHandle Table::CreatePage() {
   PageHandle page_handle = PageHandle(page, meta_);
   page_handle.header_->next_free = NULL_PAGE;
   page_handle.header_->num_record = 0;
+  page_handle.header_->pieces_space = 0;
   if (meta_.is_var){
     page_handle.header_->offset_of_free = PAGE_SIZE;
   }else{
@@ -151,15 +152,23 @@ void Table::InsertRecord(Record *record) {
   // TIPS: 若当前页面已满，则将meta_.first_free_设为下一个有空位的页面，同时将meta_modified设为true
   // LAB 1 BEGIN
 
-  if (meta_.first_free_ == NULL_PAGE) {
-    PageHandle PH = CreatePage();
-    PH.InsertRecord(record);
-    if (PH.Full()) {
+  PageHandle PH;
+  if (meta_.first_free_ == NULL_PAGE) {PH = CreatePage();}
+  else {PH = GetPage(meta_.first_free_);}
+
+  if (meta_.is_var){
+    // 预先检查
+    RecordFactory RF = RecordFactory(&meta_);
+    int store_size = RF.GetStoreSize(record);
+    int slot_no = PH.QuerySize(store_size);
+    if (slot_no < 0){ // 此页无空位, 则走向下一页
       meta_.first_free_ = PH.GetNextFree();
       meta_modified = true;
+      InsertRecord(record);
+    }else{
+      PH.InsertRecord(record, slot_no, store_size);
     }
-  } else {
-    PageHandle PH = GetPage(meta_.first_free_);
+  }else{
     PH.InsertRecord(record);
     if (PH.Full()) {
       meta_.first_free_ = PH.GetNextFree();
@@ -213,8 +222,21 @@ void Table::UpdateRecord(const Rid &rid, Record *record) {
   // TIPS: 利用PageID查找对应的页面，通过PageHandle解析页面
   // TIPS: 利用UpdateRecord更新对应SlotID的记录为record
   // LAB 1 BEGIN
-  PageHandle PH = GetPage(rid.page_no);
-  PH.UpdateRecord(rid.slot_no, record);
+  if (meta_.is_var){
+    PageHandle PH = GetPage(rid.page_no);
+    int r_size = RecordFactory(&meta_).GetStoreSize(record);
+    int slot_size = PH.positions[rid.slot_no].len;
+    if (slot_size > r_size){
+      PH.UpdateRecord(rid.slot_no, record, r_size);
+    }else{ // 先删后插的方法
+      PH.DeleteRecord(rid.slot_no);
+      InsertRecord(record); // insert by table
+    }
+  }else{
+    PageHandle PH = GetPage(rid.page_no);
+    PH.UpdateRecord(rid.slot_no, record);
+  }
+
   // LAB 1 END
 }
 

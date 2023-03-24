@@ -21,6 +21,7 @@ class RecordFactory {
 
   static Field *LoadField(const uint8_t *src, FieldType ft, FieldSize fs);
   static void StoreField(uint8_t *dst, Field *field, FieldType ft, FieldSize fs);
+  int GetStoreSize(Record * r);
 
   // TIPS: 隐藏列操作
   static Rid GetRid(Record *record);

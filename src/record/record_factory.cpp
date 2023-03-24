@@ -109,6 +109,20 @@ Record *RecordFactory::LoadRecord(const uint8_t *src) const {
   // LAB 1 END
 }
 
+int RecordFactory::GetStoreSize(Record * r){
+  int col_num = meta_->cols_.size();
+  int size = 0;
+  for (int i = 0; i < col_num; ++i) {
+    FieldType ft = meta_->cols_[i].type_;
+    FieldSize fs = meta_->cols_[i].len_;
+    if (ft == FieldType::VCHAR){
+      size += (r->field_list_[i]->GetSize() + (int)sizeof(int));
+    }else
+      size += fs;
+  }
+  return size;
+}
+
 void RecordFactory::StoreRecord(uint8_t *dst, Record *record) const {
   // TODO: 记录序列化
   // TIPS: 通过TableMeta可以读取各个字段的属性和长度，利用StoreField函数对于各个指针进行序列化。

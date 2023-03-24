@@ -2,6 +2,7 @@
 #include "defines.h"
 #include <cassert>
 #include <set>
+#include <algorithm>
 #include "utils/debug-print.hpp"
 #include "record/record_factory.h"
 #include "tx/lock_manager.h"
@@ -18,6 +19,10 @@ PageHandle::PageHandle(Page *page, const TableMeta &meta)
   if (meta_.is_var){
     slots_ = nullptr;
     positions = (Position *)(page->GetData() + sizeof(PageHeader));
+    Print("init empty slot");
+    for (int i = 0; i < header_->num_record; ++i) {
+      if (not positions[i].valid) empty_slots.push_back(i);
+    }
   }else{
     slots_ = page->GetData() + sizeof(PageHeader) + meta.bitmap_length_;
     positions = nullptr;
@@ -25,7 +30,52 @@ PageHandle::PageHandle(Page *page, const TableMeta &meta)
 
 }
 
+int PageHandle::QuerySize(int size_needed){
+  // 遍历空的slot, 如果比较大, 就返回slot num,
+  // 如果没有空的slot,则尝试末尾添加, 检查block size
+  int num_empty_slot = empty_slots.size();
+  for (int i = 0; i < num_empty_slot; ++i) {
+    const Position &p = positions[i];
+    if (not p.valid and p.len >= size_needed)
+      return i;
+  }
+  if (BlockSpace() >= sizeof(Position) + size_needed)
+    return header_->num_record;
+  return -1;
+}
+
+void PageHandle::InsertRecord(Record *record, SlotID slot_no, int store_len) {
+  assert(meta_.is_var);
+  LockManager &lock_manager = LockManager::GetInstance();
+  lock_manager.Lock("Page" + std::to_string(page_->GetPageId().page_no));
+  PageID page_no = page_->GetPageId().page_no;
+  RecordFactory RF = RecordFactory(&meta_);
+  Position &p = positions[slot_no];
+  RF.SetRid(record, {page_no, slot_no});
+  if (slot_no == header_->num_record){
+    header_->offset_of_free -= store_len;
+    p.offset = header_->offset_of_free;
+    p.len = p.data_len = store_len;
+    p.valid = true;
+    header_->num_record ++;
+  }else{
+    p.valid = true;
+    assert(p.len >= store_len);
+    p.data_len = store_len;
+    header_->pieces_space += (p.len - p.data_len);
+  }
+  RF.StoreRecord(page_->GetData() + p.offset, record);
+  page_->SetDirty();
+  Print("record start offset:", p.offset, " recored len:", p.len, "data len:", p.data_len);
+  Print("caled record store len:", store_len);
+
+  SetLSN(LogManager::GetInstance().GetCurrent());
+  // 释放排它锁
+  lock_manager.Unlock("Page" + std::to_string(page_->GetPageId().page_no));
+}
+
 void PageHandle::InsertRecord(Record *record) {
+  assert(not meta_.is_var);
   // 获取排它锁
   LockManager &lock_manager = LockManager::GetInstance();
   lock_manager.Lock("Page" + std::to_string(page_->GetPageId().page_no));
@@ -36,43 +86,14 @@ void PageHandle::InsertRecord(Record *record) {
   // TIPS: 将bitmap_的第一个空槽标记为已使用
   // TIPS: 将page_标记为dirty
   // LAB 1 BEGIN
-  if (meta_.is_var){
-    SlotID slot_no = header_->num_record;
-    PageID page_no = page_->GetPageId().page_no;
-    // getting actual record len
-    int num_field = record->GetSize();
-    int actual_record_len = 0; // 在磁盘层面的长度, 所以需要加上varchar记录长度的int
-    for (int i = 0; i < num_field; ++i) {
-      if (record->field_list_[i]->GetType() == FieldType::VCHAR){
-        actual_record_len += record->field_list_[i]->GetSize() + sizeof(int);
-        Print("varchar actual len:", record->field_list_[i]->GetSize(), " store len:", record->field_list_[i]->GetSize() + sizeof(int));
-      }else{
-        actual_record_len += meta_.cols_[i].len_;
-      }
-      Print("type:", type2str[meta_.cols_[i].type_], " len:", meta_.cols_[i].len_);
-    }
-    Print("actual len:", actual_record_len);
-    Print("slot_no:", slot_no);
-    header_->offset_of_free -= actual_record_len;
-    Position &p = positions[slot_no];
-    p.offset = header_->offset_of_free;
-    p.len = actual_record_len;
-    Print("record start offset:", p.offset, " recored len:", p.len);
-    RecordFactory RF = RecordFactory(&meta_);
-    RF.SetRid(record, {page_no, slot_no});
-    RF.StoreRecord(page_->GetData() + p.offset, record);
-    header_->num_record ++;
-  }else{
-    SlotID slot_no = bitmap_.FirstFree();
-    PageID page_no = page_->GetPageId().page_no;
-    RecordFactory RF = RecordFactory(&meta_);
-    RF.SetRid(record, {page_no, slot_no});
-    RF.StoreRecord(slots_ + record_length_ * slot_no, record);
-    bitmap_.Set(slot_no);
-    header_->num_record ++;
-  }
+  SlotID slot_no = bitmap_.FirstFree();
+  PageID page_no = page_->GetPageId().page_no;
+  RecordFactory RF = RecordFactory(&meta_);
+  RF.SetRid(record, {page_no, slot_no});
+  RF.StoreRecord(slots_ + record_length_ * slot_no, record);
+  bitmap_.Set(slot_no);
+  header_->num_record ++;
   page_->SetDirty();
-
 
   // LAB 1 END
   // LAB 2: 设置页面LSN
@@ -89,7 +110,44 @@ void PageHandle::DeleteRecord(SlotID slot_no) {
   // TIPS: 直接设置bitmap_为0即可删除对应记录
   // TIPS: 将page_标记为dirty
   // LAB 1 BEGIN
-  bitmap_.Reset(slot_no);
+  if (meta_.is_var){
+    Print("delete slot no:", slot_no, " total_num:", header_->num_record);
+    assert(slot_no < header_->num_record);
+    positions[slot_no].valid = false;
+    empty_slots.push_back(slot_no);
+//    Print("offset:", P.offset, " len:", P.len);
+//    int behind_total_len = 0;
+//    std::vector<Record *> record_vector;
+//    RecordFactory record_factory(&meta_);
+//    for (int i = slot_no + 1; i < header_->num_record; ++i) {
+//      behind_total_len += positions[i].len;
+//      Position p = positions[i];
+//      uint8_t * data_start = page_->GetData() + p.offset;
+//      Print("slot no:", i , " offset:", p.offset);
+//      Record * record = record_factory.LoadRecord(data_start);
+//      Rid rid = record_factory.GetRid(record);
+//      rid.slot_no --;
+//      record_factory.SetRid(record, rid);
+//      record_vector.push_back(record);
+//    }
+//    header_->num_record--;
+//    for (int i = slot_no; i < header_->num_record; ++i) {
+//      positions[i].len = positions[i+1].len;
+//      positions[i].offset = positions[i+1].offset + P.len;
+//    }
+//    uint8_t array[behind_total_len];
+//    memcpy(array, page_->GetData() + header_->offset_of_free, behind_total_len);
+//    header_->offset_of_free += P.len;
+//    for (int i = slot_no, j=0; i < header_->num_record; ++i, ++j) {
+//      record_factory.StoreRecord(page_->GetData()+positions[i].offset, record_vector[j]);
+//    }
+//    memcpy(page_->GetData() + header_->offset_of_free, array, behind_total_len);
+//    Print("behind total len:", behind_total_len);
+  }else{
+    bitmap_.Reset(slot_no);
+    header_->num_record--;
+
+  }
   page_->SetDirty();
   // LAB 1 END
   // LAB 2: 设置页面LSN
@@ -116,6 +174,34 @@ void PageHandle::UpdateRecord(SlotID slot_no, Record *record) {
   lock_manager.Unlock("Page" + std::to_string(page_->GetPageId().page_no));
 }
 
+void PageHandle::UpdateRecord(SlotID slot_no, Record *record, int store_len) {
+  assert(not meta_.is_var);
+  // 获取排他锁
+  LockManager &lock_manager = LockManager::GetInstance();
+  lock_manager.Lock("Page" + std::to_string(page_->GetPageId().page_no));
+  // TODO: 更新记录
+  // TIPS: 由于使用了定长数据管理，可以利用新的record序列化结果覆盖对应页面数据
+  // TIPS: 将page_标记为dirty
+  // LAB 1 BEGIN
+  PageID page_no = page_->GetPageId().page_no;
+  RecordFactory RF = RecordFactory(&meta_);
+  RF.SetRid(record, {page_no, slot_no});
+
+  Position &p = positions[slot_no];
+  p.valid = true;
+  p.data_len = store_len;
+  header_->pieces_space += p.len - p.data_len; // 产生碎片
+  std::remove(empty_slots.begin(), empty_slots.end(), slot_no);
+
+  RF.StoreRecord(page_->GetData() + p.offset, record);
+  page_->SetDirty();
+  // LAB 1 END
+  // 设置页面LSN
+  SetLSN(LogManager::GetInstance().GetCurrent());
+  // 释放排他锁
+  lock_manager.Unlock("Page" + std::to_string(page_->GetPageId().page_no));
+}
+
 RecordList PageHandle::LoadRecords() {
   // 获取共享锁
   LockManager &lock_manager = LockManager::GetInstance();
@@ -125,11 +211,15 @@ RecordList PageHandle::LoadRecords() {
   std::vector<Record *> record_vector;
   RecordFactory record_factory(&meta_);
   Print("this page have", header_->num_record, " records");
+  int num_invalid = 0;
   if (meta_.is_var){
     for (int i = 0; i < header_->num_record; ++i) {
       Position p = positions[i];
+      if (not p.valid){
+        num_invalid ++;
+        continue;
+      }
       uint8_t * data_start = page_->GetData() + p.offset;
-      Print("slot no:", i , " offset:", p.offset);
       Record * record = record_factory.LoadRecord(data_start);
       record_vector.push_back(record);
     }
@@ -140,7 +230,7 @@ RecordList PageHandle::LoadRecords() {
       record_vector.push_back(record);
     }
   }
-
+  Print("this page have", num_invalid, "invalid records");
 
   // 释放共享锁
   lock_manager.UnlockShared("Page" + std::to_string(page_->GetPageId().page_no));
@@ -240,6 +330,9 @@ RecordList PageHandle::LoadRecords(XID xid, const std::set<XID> &uncommit_xids) 
   if (meta_.is_var){
     for (int i = 0; i < header_->num_record; ++i) {
       Position p = positions[i];
+      if (not p.valid){
+        continue;
+      }
       uint8_t * data_start = page_->GetData() + p.offset;
       Print("slot no:", i , " offset:", p.offset);
       Record * record = record_factory.LoadRecord(data_start);
@@ -264,7 +357,14 @@ RecordList PageHandle::LoadRecords(XID xid, const std::set<XID> &uncommit_xids) 
 
 Rid PageHandle::Next() { return Rid{0, 0}; }
 
-bool PageHandle::Full() { return bitmap_.Full(); }
+int PageHandle::BlockSpace() {
+  // return space of whole block
+  return header_->offset_of_free - (sizeof (PageHeader) + header_->num_record * sizeof (Position));
+}
+
+
+
+bool PageHandle::Full() {return bitmap_.Full(); }
 
 PageID PageHandle::GetNextFree() { return header_->next_free; }
 
