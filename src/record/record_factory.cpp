@@ -51,7 +51,6 @@ Field *RecordFactory::LoadField(const uint8_t *src, FieldType ft, FieldSize fs) 
 
   } else if (ft == FieldType::VCHAR) {
     int len = *(int * )src;
-    Print("actual load varchar len:", len);
     VarCharField *f = new VarCharField(len);
     f->Load(src + sizeof(int), len);
     return f;
@@ -74,11 +73,10 @@ void RecordFactory::StoreField(uint8_t *dst, Field *field, FieldType ft, FieldSi
     f->Store(dst, fs);
   } else if (ft == FieldType::STRING) {
     StrField *f = dynamic_cast<StrField *>(field);
-    Print("store fs:", fs, " actual fs:", f->GetSize());
     f->Store(dst, fs);
   } else if (ft == FieldType::VCHAR) {
     VarCharField *f = dynamic_cast<VarCharField *>(field);
-    Print("string varchar, actual store len:", f->GetSize(), "total stroe len:", f->GetSize() + sizeof(int));
+//    Print("string varchar, actual store len:", f->GetSize(), "total stroe len:", f->GetSize() + sizeof(int));
     int len = f->GetSize();
     memcpy(dst, &len, sizeof(int));
     dst += sizeof(int);

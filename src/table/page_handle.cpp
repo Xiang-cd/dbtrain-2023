@@ -15,14 +15,13 @@ PageHandle::PageHandle(Page *page, const TableMeta &meta)
       bitmap_(page->GetData() + sizeof(PageHeader), meta.record_per_page_),
       meta_(meta) {
   header_ = (PageHeader *)page->GetData();
-  Print("max record len:", record_length_);
   if (meta_.is_var){
     slots_ = nullptr;
     positions = (Position *)(page->GetData() + sizeof(PageHeader));
-    Print("init empty slot");
     for (int i = 0; i < header_->num_record; ++i) {
       if (not positions[i].valid) empty_slots.push_back(i);
     }
+    Print("num empty slot:", empty_slots.size());
   }else{
     slots_ = page->GetData() + sizeof(PageHeader) + meta.bitmap_length_;
     positions = nullptr;
@@ -66,8 +65,8 @@ void PageHandle::InsertRecord(Record *record, SlotID slot_no, int store_len) {
   }
   RF.StoreRecord(page_->GetData() + p.offset, record);
   page_->SetDirty();
-  Print("record start offset:", p.offset, " recored len:", p.len, "data len:", p.data_len);
-  Print("caled record store len:", store_len);
+  Print("record start offset:", p.offset, " record len:", p.len, "data len:", p.data_len);
+  Print("record store len:", store_len);
 
   SetLSN(LogManager::GetInstance().GetCurrent());
   // 释放排它锁
