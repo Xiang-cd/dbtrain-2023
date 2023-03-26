@@ -116,7 +116,6 @@ void Table::InsertRecord(Record *record) {
   for (size_t i = 0; i < record->GetSize(); i++) {
     if (meta_.cols_[i].type_ != record->GetField(i)->GetType()) {
       if (meta_.cols_[i].type_ == FieldType::VCHAR and record->GetField(i)->GetType() == FieldType::STRING) {
-        Print("need turn string to vchar");
         StrField *f = dynamic_cast<StrField *>(record->GetField(i));
         record->field_list_[i] = new VarCharField(f);
         continue;
@@ -155,14 +154,22 @@ void Table::InsertRecord(Record *record) {
   PageHandle PH;
   if (meta_.first_free_ == NULL_PAGE) {PH = CreatePage();}
   else {PH = GetPage(meta_.first_free_);}
-
+  Print("insertting first free:", meta_.first_free_);
   if (meta_.is_var){
     // 预先检查
     RecordFactory RF = RecordFactory(&meta_);
     int store_size = RF.GetStoreSize(record);
     int slot_no = PH.QuerySize(store_size);
     if (slot_no < 0){ // 此页无空位, 则走向下一页
-      meta_.first_free_ = PH.GetNextFree();
+      PageID cur_page_no = PH.page_->GetPageId().page_no;
+      PageID next_free = NULL_PAGE;
+      for (PageID i =  cur_page_no + 1; i < meta_.table_end_page_; ++i) {
+        if (GetPage(i).QuerySize(meta_.record_length_) >= 0) {
+          next_free = i;
+          break;
+        }
+      }
+      meta_.first_free_ = next_free;
       meta_modified = true;
       InsertRecord(record);
     }else{
@@ -171,7 +178,15 @@ void Table::InsertRecord(Record *record) {
   }else{
     PH.InsertRecord(record);
     if (PH.Full()) {
-      meta_.first_free_ = PH.GetNextFree();
+      PageID cur_page_no = PH.page_->GetPageId().page_no;
+      PageID next_free = NULL_PAGE;
+      for (PageID i =  cur_page_no + 1; i < meta_.table_end_page_; ++i) {
+        if (!GetPage(i).Full()) {
+          next_free = i;
+          break;
+        }
+      }
+      meta_.first_free_ = next_free;
       meta_modified = true;
     }
   }
@@ -199,8 +214,10 @@ void Table::DeleteRecord(const Rid &rid) {
   // LAB 1 BEGIN
   PageHandle PH = GetPage(rid.page_no);
   PH.DeleteRecord(rid.slot_no);
-  meta_.first_free_ = rid.page_no;
-  meta_modified = true;
+  if (rid.page_no < meta_.first_free_){
+    meta_.first_free_ = rid.page_no;
+    meta_modified = true;
+  }
   // LAB 1 END
 }
 

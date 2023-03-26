@@ -66,7 +66,6 @@ void PageHandle::InsertRecord(Record *record, SlotID slot_no, int store_len) {
   RF.StoreRecord(page_->GetData() + p.offset, record);
   page_->SetDirty();
   Print("record start offset:", p.offset, " record len:", p.len, "data len:", p.data_len);
-  Print("record store len:", store_len);
 
   SetLSN(LogManager::GetInstance().GetCurrent());
   // 释放排它锁
@@ -110,10 +109,12 @@ void PageHandle::DeleteRecord(SlotID slot_no) {
   // TIPS: 将page_标记为dirty
   // LAB 1 BEGIN
   if (meta_.is_var){
-    Print("delete slot no:", slot_no, " total_num:", header_->num_record);
+//    Print("delete slot no:", slot_no, " total_num:", header_->num_record);
     assert(slot_no < header_->num_record);
-    positions[slot_no].valid = false;
+    Position & p = positions[slot_no];
+    p.valid = false;
     empty_slots.push_back(slot_no);
+    header_->pieces_space -= (p.len - p.data_len);
 //    Print("offset:", P.offset, " len:", P.len);
 //    int behind_total_len = 0;
 //    std::vector<Record *> record_vector;
@@ -209,7 +210,7 @@ RecordList PageHandle::LoadRecords() {
 
   std::vector<Record *> record_vector;
   RecordFactory record_factory(&meta_);
-  Print("this page have", header_->num_record, " records");
+  Print("this page ", page_->GetPageId().page_no, " have", header_->num_record, " records");
   int num_invalid = 0;
   if (meta_.is_var){
     for (int i = 0; i < header_->num_record; ++i) {
@@ -229,7 +230,6 @@ RecordList PageHandle::LoadRecords() {
       record_vector.push_back(record);
     }
   }
-  Print("this page have", num_invalid, "invalid records");
 
   // 释放共享锁
   lock_manager.UnlockShared("Page" + std::to_string(page_->GetPageId().page_no));
@@ -325,7 +325,7 @@ RecordList PageHandle::LoadRecords(XID xid, const std::set<XID> &uncommit_xids) 
 
   std::vector<Record *> record_vector;
   RecordFactory record_factory(&meta_);
-  Print("this page have", header_->num_record, " records");
+  Print("this page ", page_->GetPageId().page_no, " have", header_->num_record, " records");
   if (meta_.is_var){
     for (int i = 0; i < header_->num_record; ++i) {
       Position p = positions[i];
