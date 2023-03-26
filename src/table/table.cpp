@@ -138,7 +138,15 @@ void Table::InsertRecord(Record *record) {
     PageHandle PH = CreatePage();
     PH.InsertRecord(record);
     if (PH.Full()){
-      meta_.first_free_ = PH.GetNextFree();
+      PageID cur_page_no = PH.page_->GetPageId().page_no;
+      PageID next_free = NULL_PAGE;
+      for (PageID i =  cur_page_no + 1; i < meta_.table_end_page_; ++i) {
+        if (!GetPage(i).Full()) {
+          next_free = i;
+          break;
+        }
+      }
+      meta_.first_free_ = next_free;
       meta_modified = true;
     }
   }
