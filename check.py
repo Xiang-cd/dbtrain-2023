@@ -8,7 +8,7 @@ import subprocess
 import sys
 import traceback
 
-DEFAULT_LAB = 1
+DEFAULT_LAB = 2
 
 RED = '\033[1;31m'
 GREEN = '\033[1;32m'
