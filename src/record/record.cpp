@@ -27,7 +27,7 @@ Record *Record::Copy() const {
   return record;
 }
 
-size_t Record::GetSize() const { return field_list_.size(); }
+size_t Record::GetNumField() const { return field_list_.size(); }
 
 void Record::Display() const {
   for (Field *field : field_list_) {

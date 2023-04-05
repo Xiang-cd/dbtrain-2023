@@ -33,7 +33,7 @@ void PhysiologicalImage::Load(const Byte *src) {
   }else if (op_type_ == LogOpType::DELETE){
     memcpy( &old_len_,src + offset,  sizeof(size_t)); offset += sizeof(size_t);
     memcpy( old_val_, src + offset, old_len_); offset += old_len_;
-  }else if (op_type_ == LogOpType::INSERT){
+  }else if (op_type_ == LogOpType::UPDATE){
     memcpy( &new_len_,src + offset,  sizeof(size_t)); offset += sizeof(size_t);
     memcpy( &old_len_,src + offset,  sizeof(size_t)); offset += sizeof(size_t);
     memcpy( new_val_, src + offset, new_len_); offset += new_len_;
@@ -62,7 +62,7 @@ size_t PhysiologicalImage::Store(Byte *dst) {
   }else if (op_type_ == LogOpType::DELETE){
     memcpy(dst + offset, &old_len_, sizeof(size_t)); offset += sizeof(size_t);
     memcpy(dst + offset, old_val_, old_len_); offset += old_len_;
-  }else if (op_type_ == LogOpType::INSERT){
+  }else if (op_type_ == LogOpType::UPDATE){
     memcpy(dst + offset, &new_len_, sizeof(size_t)); offset += sizeof(size_t);
     memcpy(dst + offset, &old_len_, sizeof(size_t)); offset += sizeof(size_t);
     memcpy(dst + offset, new_val_, new_len_); offset += new_len_;
@@ -80,12 +80,12 @@ size_t PhysiologicalImage::GetLength() const {
   // TIPS: 根据操作类型区分
   // LAB 2 BEGIN
   size_t base_len = sizeof(LogOpType) +sizeof(size_t) +table_name_.size() +sizeof(PageID) +  sizeof(SlotID);
-  size_t extra_len;
+  size_t extra_len = 0;
   if (op_type_ ==  LogOpType::INSERT){
     extra_len += sizeof(size_t) + new_len_;
   }else if (op_type_ == LogOpType::DELETE){
     extra_len += sizeof(size_t) + old_len_;
-  }else if (op_type_ == LogOpType::INSERT){
+  }else if (op_type_ == LogOpType::UPDATE){
     extra_len += sizeof(size_t) * 2 + old_len_ + new_len_;
   }
 

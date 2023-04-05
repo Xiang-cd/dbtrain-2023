@@ -100,10 +100,10 @@ PageHandle Table::GetPage(PageID page_id) {
 }
 
 void Table::InsertRecord(Record *record) {
-  if (record->GetSize() != meta_.cols_.size()) {
-    throw InvalidInsertCountError(record->GetSize(), meta_.cols_.size());
+  if (record->GetNumField() != meta_.cols_.size()) {
+    throw InvalidInsertCountError(record->GetNumField(), meta_.cols_.size());
   }
-  for (size_t i = 0; i < record->GetSize(); i++) {
+  for (size_t i = 0; i < record->GetNumField(); i++) {
     if (meta_.cols_[i].type_ != record->GetField(i)->GetType()) {
       throw InvalidInsertTypeError(type2str[record->GetField(i)->GetType()], type2str[meta_.cols_[i].type_]);
     }
@@ -142,11 +142,20 @@ void Table::InsertRecord(Record *record) {
   else
     PH = GetPage(meta_.first_free_);
 
-  SlotID slot_no = PH.bitmap_.FirstFree();
-  PageID page_no = PH.page_->GetPageId().page_no;
-  LM.InsertRecordLog(xid, table_name_, {page_no, slot_no}, )
 
-  PH.InsertRecord(record);
+  // 这里会有并发问题, 如果在这里获得bitmap的第一个槽, 其他线程也在此获得一个槽, 则可能冲突
+  // 这里采用加锁的方式获得槽, 同时设置槽为不可用
+  SlotID slot_no = PH.AtomicSeekAndSet();
+  PageID page_no = PH.page_->GetPageId().page_no;
+
+  // 保存记录到buffer, insert 和 log 都采用直接拷贝的方式
+  Byte record_raw[meta_.record_length_];
+  RecordFactory RF = RecordFactory(&meta_);
+  RF.SetRid(record, {page_no, slot_no});
+  RF.StoreRecord(record_raw, record);
+
+  LSN lsn = LM.InsertRecordLog(xid, table_name_, {page_no, slot_no}, meta_.record_length_, record_raw);
+  PH.InsertRecord(slot_no, record_raw, lsn);
 
 
   if (PH.Full()){
@@ -173,6 +182,7 @@ void Table::DeleteRecord(const Rid &rid) {
   // LAB 2 BEGIN
   // LAB 2 END
   XID xid = TxManager::GetInstance().Get(std::this_thread::get_id());
+  LogManager &LM = LogManager::GetInstance();
 
   // TODO: 更改LAB 1,2代码，适应MVCC情景
   // TIPS: 注意删除日志没有清除实际数据，页面不会由满变空
@@ -185,9 +195,14 @@ void Table::DeleteRecord(const Rid &rid) {
   // TIPS: 注意更新Meta的first_free_信息
   // LAB 1 BEGIN
   PageHandle PH = GetPage(rid.page_no);
+  LM.DeleteRecordLog(xid, table_name_, rid, meta_.record_length_, PH.GetRaw(rid.slot_no));
   PH.DeleteRecord(rid.slot_no);
-  meta_.first_free_ = rid.page_no;
-  meta_modified = true;
+
+  if (rid.page_no < meta_.first_free_){
+    meta_.first_free_ = rid.page_no;
+    meta_modified = true;
+  }
+
   // LAB 1 END
 }
 
@@ -198,7 +213,7 @@ void Table::UpdateRecord(const Rid &rid, Record *record) {
   // LAB 2 BEGIN
   // LAB 2 END
   XID xid = TxManager::GetInstance().Get(std::this_thread::get_id());
-
+  LogManager &LM = LogManager::GetInstance();
   // TODO: 更改LAB 1,2代码，适应MVCC情景
   // TIPS: 注意更新过程与之前不同，需要采用删除旧数据并插入新数据的方法
   // TIPS: 可以调用DeleteRecord和InsertRecord的接口
@@ -209,7 +224,15 @@ void Table::UpdateRecord(const Rid &rid, Record *record) {
   // TIPS: 利用PageID查找对应的页面，通过PageHandle解析页面
   // TIPS: 利用UpdateRecord更新对应SlotID的记录为record
   // LAB 1 BEGIN
+
+  // 依然有并发问题, 如果直接对get Raw 做更新, 当别的线程拿到所进行修改, 而这边直接getraw
+  Byte record_raw[meta_.record_length_];
+  RecordFactory RF = RecordFactory(&meta_);
+  RF.StoreRecord(record_raw, record);
   PageHandle PH = GetPage(rid.page_no);
+
+  LM.UpdateRecordLog(xid, table_name_, rid, meta_.record_length_, PH.GetRaw(rid.slot_no), meta_.record_length_, record_raw);
+
   PH.UpdateRecord(rid.slot_no, record);
   // LAB 1 END
 }

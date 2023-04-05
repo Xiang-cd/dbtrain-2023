@@ -24,7 +24,7 @@ void TablePrinter::GetWidths(const Result *result) {
     widths_.push_back(result->header_[i].size());
   }
   for (const auto &record : result->records_) {
-    for (size_t i = 0; i < record->GetSize(); i++) {
+    for (size_t i = 0; i < record->GetNumField(); i++) {
       widths_[i] =
           record->GetField(i)->ToString().size() > widths_[i] ? record->GetField(i)->ToString().size() : widths_[i];
     }
@@ -47,7 +47,7 @@ void TablePrinter::PrintHeader(const Result *result) {
 
 void TablePrinter::PrintRecord(const Result *result) {
   for (const auto &record : result->records_) {
-    for (size_t i = 0; i < record->GetSize(); i++) {
+    for (size_t i = 0; i < record->GetNumField(); i++) {
       std::cout << "| " << std::left << std::setw(widths_[i]) << record->GetField(i)->ToString() << ' ';
     }
     std::cout << "|\n";

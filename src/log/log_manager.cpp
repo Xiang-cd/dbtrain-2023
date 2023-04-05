@@ -88,12 +88,23 @@ void LogManager::Checkpoint() {
   SystemManager::GetInstance().StoreMasterRecord();
 }
 
-void LogManager::InsertRecordLog(XID xid, const string &table_name, Rid rid, size_t new_len, const void *new_val) {
+LSN LogManager::InsertRecordLog(XID xid, const string &table_name, Rid rid, size_t new_len, const void *new_val) {
   // TODO: 记录数据插入日志
   // TIPS: 利用LogFactory生成日志信息
   // TIPS: 注意需要按照算法更新ATT和DPT
   // LAB 2 BEGIN
-  Print("insert record log");
+  Print("LogManager::InsertRecordLog> insert record log");
+  LSN lsn = AppendLog();
+  LSN prev_lsn = att_[xid];
+  Log * log = dbtrain::LogFactory::NewInsertLog({lsn, prev_lsn, xid}, table_name, rid, new_len, new_val);
+  WriteLog(log);
+
+  att_[xid] = lsn;
+
+  // 如果是第一次进入脏页表, 则记录此时的lsn 作为reclsn
+  UniquePageID upid= {table_name, rid.page_no};
+  if (dpt_.find(upid) == dpt_.end()) dpt_[upid] = lsn;
+  return lsn;
   // LAB 2 END
 }
 
@@ -102,6 +113,15 @@ void LogManager::DeleteRecordLog(XID xid, const string &table_name, Rid rid, siz
   // TIPS: 利用LogFactory生成日志信息
   // TIPS: 注意需要按照算法更新ATT和DPT
   // LAB 2 BEGIN
+  Print("LogManager::DeleteRecordLog> delete record log");
+  LSN lsn = AppendLog();
+  LSN prev_lsn = att_[xid];
+  Log * log = dbtrain::LogFactory::NewDeleteLog({lsn, prev_lsn, xid}, table_name, rid, old_len, old_val);
+  WriteLog(log);
+
+  att_[xid] = lsn;
+  UniquePageID upid= {table_name, rid.page_no};
+  if (dpt_.find(upid) == dpt_.end()) dpt_[upid] = lsn;
   // LAB 2 END
 }
 
@@ -111,6 +131,14 @@ void LogManager::UpdateRecordLog(XID xid, const string &table_name, Rid rid, siz
   // TIPS: 利用LogFactory生成日志信息
   // TIPS: 注意需要按照算法更新ATT和DPT
   // LAB 2 BEGIN
+  LSN lsn = AppendLog();
+  LSN prev_lsn = att_[xid];
+  Log * log = dbtrain::LogFactory::NewUpdateLog({lsn, prev_lsn, xid}, table_name, rid, old_len, old_val, new_len, new_val);
+  WriteLog(log);
+
+  att_[xid] = lsn;
+  UniquePageID upid= {table_name, rid.page_no};
+  if (dpt_.find(upid) == dpt_.end()) dpt_[upid] = lsn;
   // LAB 2 END
 }
 

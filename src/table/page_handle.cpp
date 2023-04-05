@@ -209,6 +209,17 @@ PageID PageHandle::GetNextFree() { return header_->next_free; }
 
 SlotID PageHandle::FirstFree() { return bitmap_.FirstFree(); }
 
+SlotID PageHandle::AtomicSeekAndSet() {
+  // 获取排他锁
+  LockManager &lock_manager = LockManager::GetInstance();
+  lock_manager.Lock("Page" + std::to_string(page_->GetPageId().page_no));
+  SlotID id = bitmap_.FirstFree();
+  bitmap_.Set(id);
+  // 释放排他锁
+  lock_manager.Unlock("Page" + std::to_string(page_->GetPageId().page_no));
+  return id;
+}
+
 void PageHandle::SetLSN(LSN lsn) { header_->page_lsn = lsn; }
 
 LSN PageHandle::GetLSN() { return header_->page_lsn; }

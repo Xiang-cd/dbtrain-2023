@@ -15,7 +15,7 @@ class Record {
   void SetField(int idx, Field *field);
   void PushBack(Field *field);
   Record *Copy() const;
-  size_t GetSize() const;
+  size_t GetNumField() const;
   void Display() const;
   std::vector<std::string> ToString() const;
 

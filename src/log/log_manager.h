@@ -33,7 +33,7 @@ class LogManager {
   void Abort(XID xid);
   void Checkpoint();
 
-  void InsertRecordLog(XID xid, const string &table_name, Rid rid, size_t new_len, const void *new_val);
+  LSN InsertRecordLog(XID xid, const string &table_name, Rid rid, size_t new_len, const void *new_val);
   void DeleteRecordLog(XID xid, const string &table_name, Rid rid, size_t old_len, const void *old_val);
   void UpdateRecordLog(XID xid, const string &table_name, Rid rid, size_t old_len, const void *old_val, size_t new_len,
                        const void *new_val);

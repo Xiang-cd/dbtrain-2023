@@ -38,11 +38,11 @@ void PrintBuffer::PrintRecord(string thread_name, const RecordList &records) {
   if (!records.empty()) {
     char *buffer = buffer_map_[thread_name];
     for (const auto *record : records) {
-      for (size_t i = 0; i < record->GetSize(); i++) {
+      for (size_t i = 0; i < record->GetNumField(); i++) {
         snprintf(buffer + offset_map_[thread_name], PRINT_BUFFER_SIZE - offset_map_[thread_name], "%s",
                  record->GetField(i)->ToString().c_str());
         offset_map_[thread_name] += record->GetField(i)->ToString().size();
-        if (i != record->GetSize() - 1) {
+        if (i != record->GetNumField() - 1) {
           snprintf(buffer + offset_map_[thread_name], PRINT_BUFFER_SIZE - offset_map_[thread_name], " | ");
           offset_map_[thread_name] += 3;
         }

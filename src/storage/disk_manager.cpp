@@ -208,7 +208,7 @@ void DiskManager::AppendRaw(int fd, const Byte *data, size_t size) {
   lseek(fd, 0, SEEK_END);
   ssize_t bytes_write = write(fd, data, size);
   if (bytes_write != size) {
-    std::cerr << "Error in DiskManager::AppendRaw\n";
+    std::cerr << "Error in DiskManager::AppendRaw\n"<<"actual writed:"<<bytes_write<<" needed:"<<size;
     throw UnknownError();
   }
 }

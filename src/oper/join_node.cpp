@@ -29,10 +29,10 @@ double JoinNode::Cost() {
 }
 
 Record *JoinNode::Concat(Record *left, Record *right) const {
-  auto rs = left->GetSize() + right->GetSize();
+  auto rs = left->GetNumField() + right->GetNumField();
   Record *record = new Record();
-  for (auto i = 0; i < left->GetSize(); ++i) record->PushBack(left->GetField(i)->Copy());
-  for (auto i = 0; i < right->GetSize(); ++i) record->PushBack(right->GetField(i)->Copy());
+  for (auto i = 0; i < left->GetNumField(); ++i) record->PushBack(left->GetField(i)->Copy());
+  for (auto i = 0; i < right->GetNumField(); ++i) record->PushBack(right->GetField(i)->Copy());
   return record;
 }
 

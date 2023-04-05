@@ -13,9 +13,9 @@ void RawPrinter::Print(const Result *result) {
   }
   std::cout << "\n";
   for (const auto &record : result->records_) {
-    for (size_t i = 0; i < record->GetSize(); i++) {
+    for (size_t i = 0; i < record->GetNumField(); i++) {
       std::cout << record->GetField(i)->ToString();
-      if (i != record->GetSize() - 1) {
+      if (i != record->GetNumField() - 1) {
         std::cout << " | ";
       }
     }

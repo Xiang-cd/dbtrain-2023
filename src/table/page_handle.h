@@ -50,6 +50,7 @@ class PageHandle {
   bool Full();
   PageID GetNextFree();
   SlotID FirstFree();
+  SlotID AtomicSeekAndSet();
   void SetLSN(LSN lsn);
   LSN GetLSN();
 

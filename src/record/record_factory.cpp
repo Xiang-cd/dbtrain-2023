@@ -109,8 +109,8 @@ void RecordFactory::StoreRecord(uint8_t *dst, Record *record) const {
 
 Rid RecordFactory::GetRid(Record *record) {
   // 读取隐藏列的RID信息
-  PageID page_id = dynamic_cast<IntField *>(record->field_list_[record->GetSize() - PAGE_ID_OFFSET])->GetValue();
-  SlotID slot_id = dynamic_cast<IntField *>(record->field_list_[record->GetSize() - SLOT_ID_OFFSET])->GetValue();
+  PageID page_id = dynamic_cast<IntField *>(record->field_list_[record->GetNumField() - PAGE_ID_OFFSET])->GetValue();
+  SlotID slot_id = dynamic_cast<IntField *>(record->field_list_[record->GetNumField() - SLOT_ID_OFFSET])->GetValue();
   return {page_id, slot_id};
 }
 
@@ -118,8 +118,8 @@ void RecordFactory::SetRid(Record *record, Rid rid) {
   // 设置隐藏列的RID信息
   Field *page_field = new IntField(rid.page_no);
   Field *slot_field = new IntField(rid.slot_no);
-  record->SetField(record->GetSize() - PAGE_ID_OFFSET, page_field);
-  record->SetField(record->GetSize() - SLOT_ID_OFFSET, slot_field);
+  record->SetField(record->GetNumField() - PAGE_ID_OFFSET, page_field);
+  record->SetField(record->GetNumField() - SLOT_ID_OFFSET, slot_field);
 }
 
 // TODO: 设置MVCC相关隐藏列的接口
