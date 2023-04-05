@@ -4,6 +4,7 @@
 #include "logs.h"
 #include "system/system_manager.h"
 #include "tx/tx_manager.h"
+#include "utils/debug-print.hpp"
 
 namespace dbtrain {
 
@@ -92,6 +93,7 @@ void LogManager::InsertRecordLog(XID xid, const string &table_name, Rid rid, siz
   // TIPS: 利用LogFactory生成日志信息
   // TIPS: 注意需要按照算法更新ATT和DPT
   // LAB 2 BEGIN
+  Print("insert record log");
   // LAB 2 END
 }
 

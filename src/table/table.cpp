@@ -121,6 +121,8 @@ void Table::InsertRecord(Record *record) {
   // LAB 2 BEGIN
   // LAB 2 END
   XID xid = TxManager::GetInstance().Get(std::this_thread::get_id());
+  LogManager &LM = LogManager::GetInstance();
+
 
   // TODO: 更改LAB 1,2代码，适应MVCC情景
   // TIPS: 注意记录日志时需要设置新的隐藏列
@@ -134,29 +136,31 @@ void Table::InsertRecord(Record *record) {
   // TIPS: 调用page_handler的InsertRecord()方法插入记录
   // TIPS: 若当前页面已满，则将meta_.first_free_设为下一个有空位的页面，同时将meta_modified设为true
   // LAB 1 BEGIN
-  if (meta_.first_free_ == NULL_PAGE){
-    PageHandle PH = CreatePage();
-    PH.InsertRecord(record);
-    if (PH.Full()){
-      PageID cur_page_no = PH.page_->GetPageId().page_no;
-      PageID next_free = NULL_PAGE;
-      for (PageID i =  cur_page_no + 1; i < meta_.table_end_page_; ++i) {
-        if (!GetPage(i).Full()) {
-          next_free = i;
-          break;
-        }
+  PageHandle PH;
+  if (meta_.first_free_ == NULL_PAGE)
+    PH = CreatePage();
+  else
+    PH = GetPage(meta_.first_free_);
+
+  SlotID slot_no = PH.bitmap_.FirstFree();
+  PageID page_no = PH.page_->GetPageId().page_no;
+  LM.InsertRecordLog(xid, table_name_, {page_no, slot_no}, )
+
+  PH.InsertRecord(record);
+
+
+  if (PH.Full()){
+    // 主动寻找最近的空页
+    PageID cur_page_no = PH.page_->GetPageId().page_no;
+    PageID next_free = NULL_PAGE;
+    for (PageID i =  cur_page_no + 1; i < meta_.table_end_page_; ++i) {
+      if (!GetPage(i).Full()) {
+        next_free = i;
+        break;
       }
-      meta_.first_free_ = next_free;
-      meta_modified = true;
     }
-  }
-  else{
-    PageHandle PH = GetPage(meta_.first_free_);
-    PH.InsertRecord(record);
-    if (PH.Full()){
-      meta_.first_free_ = PH.GetNextFree();
-      meta_modified = true;
-    }
+    meta_.first_free_ = next_free;
+    meta_modified = true;
   }
 
   // LAB 1 END
