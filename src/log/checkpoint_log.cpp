@@ -1,7 +1,7 @@
 #include "checkpoint_log.h"
 
 #include <cassert>
-
+#include "utils/debug-print.hpp"
 #include "tx/tx_manager.h"
 
 namespace dbtrain {
@@ -25,6 +25,7 @@ void CheckpointLog::Load(const Byte *src) {
     memcpy(&xid, src + offset, sizeof(XID)); offset += sizeof(XID);
     memcpy(&lsn, src + offset, sizeof(LSN)); offset += sizeof(LSN);
     att[xid] = lsn;
+    Print("CheckpointLog::Load>xid:", xid, " lsn:", lsn);
   }
   for (int i = 0; i < dpt_len; ++i) {
     size_t str_len;
@@ -56,6 +57,7 @@ size_t CheckpointLog::Store(Byte *dst) {
   memcpy(dst + offset, &att_len, sizeof(size_t)); offset += sizeof(size_t);
   memcpy(dst + offset, &dpt_len, sizeof(size_t)); offset += sizeof(size_t);
   for (const auto &att_pair : att) {
+    Print("CheckpointLog::Store>xid:", att_pair.first, " lsn:", att_pair.second);
     memcpy(dst + offset, &att_pair.first, sizeof(XID)); offset += sizeof(XID);
     memcpy(dst +offset, &att_pair.second, sizeof(LSN)); offset += sizeof(LSN);
   }

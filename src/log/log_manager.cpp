@@ -59,6 +59,7 @@ void LogManager::Commit(XID xid) {
   // 记录事务提交日志
   LSN lsn = AppendLog();
   LSN prev_lsn = att_[xid];
+  Print("LogManager::Commit> cur lsn:", lsn, " prev_lsn:", prev_lsn, " xid:", xid);
   Log *log = new CommitLog(lsn, prev_lsn, xid);
   WriteLog(log);
   // 更新ATT
@@ -71,6 +72,7 @@ void LogManager::Abort(XID xid) {
   // TIPS: 考虑回滚失败的情况需要添加CLR日志
   LSN lsn = AppendLog();
   LSN prev_lsn = att_[xid];
+  Print("LogManager::Abort> cur lsn:", lsn, " prev_lsn:", prev_lsn, " xid:", xid);
   Log *log = new AbortLog(lsn, prev_lsn, xid);
   WriteLog(log);
   // Undo操作
@@ -84,6 +86,7 @@ void LogManager::Checkpoint() {
   // 记录Checkpoint日志后更新MasterRecord
   LSN lsn = AppendLog();
   Log *log = new CheckpointLog(lsn);
+  Print("LogManager::Checkpoint> cur lsn:", lsn);
   WriteLog(log);
   delete log;
   SystemManager::GetInstance().StoreMasterRecord();
@@ -174,6 +177,8 @@ void LogManager::Analyse(LSN checkpoint_lsn) {
   Log *log = SystemManager::GetInstance().ReadLog(iter_lsn);
   while (log != nullptr) {
     assert(log->GetLSN() == iter_lsn);
+    Print("LogManager::Analyse> lsn;", iter_lsn);
+    Print("LogManager::Analyse> type:", LogType2str[log->GetType()]);
     if (log->GetType() == LogType::COMMIT) {
       CommitLog *commit_log = dynamic_cast<CommitLog *>(log);
       XID xid = commit_log->GetXID();
@@ -261,6 +266,7 @@ void LogManager::Undo() {
   // 在目前实现方法下，所有处于ATT中的事务都为正在运行状态
   // Undo过程需要回滚所有的ATT表中事务
   for (const auto &att_pair : att_) {
+    if (att_pair.first < INIT_XID) continue;
     Undo(att_pair.first);
     // 清除ATT表对应项
   }
@@ -277,11 +283,11 @@ bool LogManager::Undo(XID xid) {
   // LAB 2 BEGIN
   assert(att_.find(xid) != att_.end());
   LSN last_lsn = att_[xid];
-  Print("LogManager::Undo> last lsn:", last_lsn);
+  Print("LogManager::Undo(XID xid)> last lsn:",last_lsn, " xid:", xid);
   SystemManager & SYS = SystemManager::GetInstance();
   Log * log = SYS.ReadLog(last_lsn);
   while (log != nullptr){
-    Print("LogManager::Undo>", LogType2str[log->GetType()], " lsn:", log->GetLSN());
+    Print("LogManager::Undo(XID xid)>", LogType2str[log->GetType()], " lsn:", log->GetLSN());
     LSN undo_next;
     if (log->GetType() == LogType::COMMIT) {
       auto *commit_log = dynamic_cast<CommitLog *>(log);
@@ -314,7 +320,6 @@ bool LogManager::Undo(XID xid) {
   auto * end_log = new EndLog(lsn, att_[xid], xid);
   WriteLog(end_log);
   delete end_log;
-  att_.erase(xid);
   return true;
   // LAB 2 END
 }
