@@ -18,7 +18,11 @@ Log *LogFactory::LoadLog(const Byte *src) {
     log = new CheckpointLog();
   } else if (log_type == LogType::UPDATE) {
     log = new UpdateLog();
-  } else {
+  } else if (log_type == LogType::CLR){
+    log = new CLRLog();
+  } else if (log_type == LogType::END){
+    log = new EndLog();
+  }else{
     assert(false);
   }
   log->Load(src + sizeof(LogType));

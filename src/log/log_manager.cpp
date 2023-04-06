@@ -218,16 +218,36 @@ void LogManager::Redo() {
     if (log->GetType() == LogType::UPDATE) {
       auto *update_log = dynamic_cast<UpdateLog *>(log);
       update_log->Redo();
+
+      UniquePageID upid= update_log->GetUniPageID();
+      auto lsn = update_log->GetLSN();
+      if (dpt_.find(upid) == dpt_.end()) dpt_[upid] = lsn;
+      att_[update_log->GetXID()] = lsn;
+
     } else if (log->GetType() == LogType::CLR){
       auto *clr_log = dynamic_cast<CLRLog *>(log);
       clr_log->Redo();
+
+      UniquePageID upid= clr_log->GetUniPageID();
+      auto lsn = clr_log->GetLSN();
+      if (dpt_.find(upid) == dpt_.end()) dpt_[upid] = lsn;
+      att_[clr_log->GetXID()] = lsn;
     } else if (log->GetType() == LogType::ABORT) {
       auto *abort_log = dynamic_cast<AbortLog *>(log);
       XID xid = abort_log->GetXID();
       Abort(xid);
-    } else if (log->GetType() == LogType::COMMIT or
-        (log->GetType() == LogType::BEGIN)) {
+    } else if (log->GetType() == LogType::COMMIT) {
       // do nothing
+      auto * commit_log = dynamic_cast<CommitLog *>(log);
+      att_.erase(commit_log->GetXID());
+    } else if (log->GetType() == LogType::BEGIN){
+      auto * begin_log = dynamic_cast<BeginLog *>(log);
+      att_[begin_log->GetXID()] = begin_log->GetLSN();
+    }else if (log->GetType() == LogType::CHECKPOINT){
+      // do nothing
+    }else if (log->GetType() == LogType::END){
+      auto * end_log = dynamic_cast<EndLog * >(log);
+      att_.erase(end_log->GetXID());
     } else assert(false);
 
     redo_lsn ++;
