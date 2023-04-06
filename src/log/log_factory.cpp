@@ -40,7 +40,7 @@ Log *LogFactory::NewDeleteLog(const TxInfo &info, const string &table_name, Rid 
   log->log_image_.slot_id_ = rid.slot_no;
   log->log_image_.table_name_ = table_name;
 
-  log->log_image_.op_type_ = PhysiologicalImage::LogOpType::DELETE;
+  log->log_image_.op_type_ = LogOpType::DELETE;
   log->log_image_.old_len_ = old_len;
   log->log_image_.old_val_ = new Byte[old_len];
   memcpy(log->log_image_.old_val_, old_val, old_len);
@@ -54,7 +54,7 @@ Log *LogFactory::NewInsertLog(const TxInfo &info, const string &table_name, Rid 
   log->log_image_.slot_id_ = rid.slot_no;
   log->log_image_.table_name_ = table_name;
 
-  log->log_image_.op_type_ = PhysiologicalImage::LogOpType::INSERT;
+  log->log_image_.op_type_ = LogOpType::INSERT;
   log->log_image_.new_len_ = new_len;
   log->log_image_.new_val_ = new Byte[new_len];
   memcpy(log->log_image_.new_val_, new_val, new_len);
@@ -68,7 +68,7 @@ Log *LogFactory::NewUpdateLog(const TxInfo &info, const string &table_name, Rid 
   log->log_image_.slot_id_ = rid.slot_no;
   log->log_image_.table_name_ = table_name;
 
-  log->log_image_.op_type_ = PhysiologicalImage::LogOpType::UPDATE;
+  log->log_image_.op_type_ = LogOpType::UPDATE;
   log->log_image_.old_len_ = old_len;
   log->log_image_.old_val_ = new Byte[old_len];
   memcpy(log->log_image_.old_val_, old_val, old_len);

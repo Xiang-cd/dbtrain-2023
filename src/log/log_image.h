@@ -3,9 +3,9 @@
 #include "defines.h"
 
 namespace dbtrain {
+enum class LogOpType { UPDATE, DELETE, INSERT };
 
 class PhysiologicalImage {
-  enum class LogOpType { UPDATE, DELETE, INSERT };
 
  public:
   PhysiologicalImage();
@@ -26,6 +26,7 @@ class PhysiologicalImage {
 
   friend class LogFactory;
   friend class UpdateLog;
+  friend class CLRLog;
 };
 
 }  // namespace dbtrain

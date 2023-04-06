@@ -8,6 +8,16 @@ namespace dbtrain {
 const LSN NULL_LSN = UINT32_MAX;
 
 enum class LogType { UNDEFINED = 0, UPDATE, COMMIT, ABORT, BEGIN, END, CLR, CHECKPOINT };
+static std::unordered_map<LogType, std::string> LogType2str = {
+    {LogType::UNDEFINED, "UNDEFINED"},
+    {LogType::UPDATE, "UPDATE"},
+    {LogType::COMMIT, "COMMIT"},
+    {LogType::ABORT, "ABORT"},
+    {LogType::BEGIN, "BEGIN"},
+    {LogType::END, "END"},
+    {LogType::CLR, "CLR"},
+    {LogType::CHECKPOINT, "CHECKPOINT"},
+};
 
 class Log {
  public:

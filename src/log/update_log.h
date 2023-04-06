@@ -16,17 +16,36 @@ class UpdateLog : public TxLog {
   void Load(const Byte *src) override;
   size_t Store(Byte *dst) override;
 
-  void Redo();
-  void Undo();
+  virtual void Redo();
+  virtual void Undo(LSN lsn);
   UniquePageID GetUniPageID() const;
 
   LogType GetType() const override;
   size_t GetLength() const override;
 
- private:
+ public:
   PhysiologicalImage log_image_;
 
   friend class LogFactory;
+};
+
+class CLRLog: public UpdateLog {
+ public:
+  CLRLog() = default;
+  CLRLog(LSN lsn, LSN prev_lsn, XID xid, LSN undo);
+  ~CLRLog() = default;
+
+  void Load(const Byte *src) override;
+  size_t Store(Byte *dst) override;
+
+
+  void from_UpdateLog(const UpdateLog *ulog);
+  LogType GetType() const override;
+  size_t GetLength() const override;
+
+ public:
+  LSN undoNext;
+
 };
 
 }  // namespace dbtrain

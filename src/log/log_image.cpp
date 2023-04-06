@@ -15,10 +15,9 @@ void PhysiologicalImage::Load(const Byte *src) {
   // TODO: Log Image反序列化
   // TIPS: 根据操作类型区分
   // LAB 2 BEGIN
-  Print("PhysiologicalImage> loading");
   size_t offset = 0;
   memcpy(&op_type_, src+offset, sizeof (LogOpType)); offset += sizeof(LogOpType);
-  size_t name_len = *(size_t *) src + offset; offset += sizeof(size_t);
+  size_t name_len = *(size_t *) (src + offset); offset += sizeof(size_t);
   char array[name_len + 1];
   memcpy(array,src + offset, name_len); array[name_len] = '\0';
   table_name_ = std::string (array);
@@ -26,20 +25,23 @@ void PhysiologicalImage::Load(const Byte *src) {
 
   memcpy(&page_id_, src + offset, sizeof(PageID)); offset += sizeof(PageID);
   memcpy(&slot_id_, src + offset, sizeof(SlotID)); offset += sizeof(SlotID);
-
   if (op_type_ ==  LogOpType::INSERT){
     memcpy( &new_len_,src + offset,  sizeof(size_t)); offset += sizeof(size_t);
+    new_val_ = new Byte [new_len_];
     memcpy( new_val_, src + offset, new_len_); offset += new_len_;
   }else if (op_type_ == LogOpType::DELETE){
     memcpy( &old_len_,src + offset,  sizeof(size_t)); offset += sizeof(size_t);
+    old_val_ = new Byte [old_len_];
     memcpy( old_val_, src + offset, old_len_); offset += old_len_;
   }else if (op_type_ == LogOpType::UPDATE){
     memcpy( &new_len_,src + offset,  sizeof(size_t)); offset += sizeof(size_t);
     memcpy( &old_len_,src + offset,  sizeof(size_t)); offset += sizeof(size_t);
+    new_val_ = new Byte [new_len_];
+    old_val_ = new Byte [old_len_];
     memcpy( new_val_, src + offset, new_len_); offset += new_len_;
     memcpy( old_val_, src + offset, old_len_); offset += old_len_;
   }else{
-    throw "not emp";
+    assert(false);
   }
   // LAB 2 END
 }
@@ -48,7 +50,6 @@ size_t PhysiologicalImage::Store(Byte *dst) {
   // TODO: Log Image序列化
   // TIPS: 根据操作类型区分，返回Store的数据长度
   // LAB 2 BEGIN
-  Print("PhysiologicalImage> storing");
   size_t offset = 0;
   memcpy(dst+offset, &op_type_, sizeof (LogOpType)); offset += sizeof(LogOpType);
   *(size_t *) (dst + offset) = table_name_.size(); offset += sizeof(size_t);
@@ -68,7 +69,7 @@ size_t PhysiologicalImage::Store(Byte *dst) {
     memcpy(dst + offset, new_val_, new_len_); offset += new_len_;
     memcpy(dst + offset, old_val_, old_len_); offset += old_len_;
   }else{
-    throw "not emp";
+    assert(false);
   }
 
   return offset;

@@ -47,6 +47,7 @@ void LogManager::Begin(XID xid) {
   // 记录事务开始日志
   LSN lsn = AppendLog();
   LSN prev_lsn = NULL_LSN;
+  Print("LogManager::Begin> cur lsn:", lsn, " prev_lsn:", prev_lsn, " xid:", xid);
   Log *log = new BeginLog(lsn, prev_lsn, xid);
   WriteLog(log);
   // 更新ATT
@@ -93,12 +94,12 @@ LSN LogManager::InsertRecordLog(XID xid, const string &table_name, Rid rid, size
   // TIPS: 利用LogFactory生成日志信息
   // TIPS: 注意需要按照算法更新ATT和DPT
   // LAB 2 BEGIN
-  Print("LogManager::InsertRecordLog> insert record log");
   LSN lsn = AppendLog();
   LSN prev_lsn = att_[xid];
+  Print("LogManager::InsertRecordLog> cur lsn:", lsn, " prev_lsn:", prev_lsn, " xid:", xid);
   Log * log = dbtrain::LogFactory::NewInsertLog({lsn, prev_lsn, xid}, table_name, rid, new_len, new_val);
   WriteLog(log);
-
+  delete log;
   att_[xid] = lsn;
 
   // 如果是第一次进入脏页表, 则记录此时的lsn 作为reclsn
@@ -113,12 +114,12 @@ void LogManager::DeleteRecordLog(XID xid, const string &table_name, Rid rid, siz
   // TIPS: 利用LogFactory生成日志信息
   // TIPS: 注意需要按照算法更新ATT和DPT
   // LAB 2 BEGIN
-  Print("LogManager::DeleteRecordLog> delete record log");
   LSN lsn = AppendLog();
   LSN prev_lsn = att_[xid];
+  Print("LogManager::DeleteRecordLog> cur lsn:", lsn, " prev_lsn:", prev_lsn, " xid:", xid);
   Log * log = dbtrain::LogFactory::NewDeleteLog({lsn, prev_lsn, xid}, table_name, rid, old_len, old_val);
   WriteLog(log);
-
+  delete log;
   att_[xid] = lsn;
   UniquePageID upid= {table_name, rid.page_no};
   if (dpt_.find(upid) == dpt_.end()) dpt_[upid] = lsn;
@@ -133,9 +134,10 @@ void LogManager::UpdateRecordLog(XID xid, const string &table_name, Rid rid, siz
   // LAB 2 BEGIN
   LSN lsn = AppendLog();
   LSN prev_lsn = att_[xid];
+  Print("LogManager::UpdateRecordLog> cur lsn:", lsn, " prev_lsn:", prev_lsn, " xid:", xid);
   Log * log = dbtrain::LogFactory::NewUpdateLog({lsn, prev_lsn, xid}, table_name, rid, old_len, old_val, new_len, new_val);
   WriteLog(log);
-
+  delete log;
   att_[xid] = lsn;
   UniquePageID upid= {table_name, rid.page_no};
   if (dpt_.find(upid) == dpt_.end()) dpt_[upid] = lsn;
@@ -204,6 +206,34 @@ void LogManager::Redo() {
   // TIPS: 按照ARIES算法，需要读取DPT获取最小的Record LSN
   // TIPS: 从最小RecLSN开始REDO，根据PageLSN部分数据不需要REDO
   // LAB 2 BEGIN
+  LSN redo_lsn = NULL_LSN;
+  for (const auto &dpt_pair : dpt_) {
+    if (dpt_pair.second < redo_lsn)
+      redo_lsn = dpt_pair.second;
+  }
+  Print("LogManager::Redo> min lsn:", redo_lsn);
+  Log * log = SystemManager::GetInstance().ReadLog(redo_lsn);
+  while (log != nullptr){
+    Print("LogManager::Redo> redoing", log->GetLSN(), LogType2str[log->GetType()]);
+    if (log->GetType() == LogType::UPDATE) {
+      auto *update_log = dynamic_cast<UpdateLog *>(log);
+      update_log->Redo();
+    } else if (log->GetType() == LogType::CLR){
+      auto *clr_log = dynamic_cast<CLRLog *>(log);
+      clr_log->Redo();
+    } else if (log->GetType() == LogType::ABORT) {
+      auto *abort_log = dynamic_cast<AbortLog *>(log);
+      XID xid = abort_log->GetXID();
+      Abort(xid);
+    } else if (log->GetType() == LogType::COMMIT or
+        (log->GetType() == LogType::BEGIN)) {
+      // do nothing
+    } else assert(false);
+
+    redo_lsn ++;
+    delete log;
+    log = SystemManager::GetInstance().ReadLog(redo_lsn);
+  }
   // LAB 2 END
 }
 
@@ -225,6 +255,47 @@ bool LogManager::Undo(XID xid) {
   // TIPS: 利用Update Log的Undo功能可以实现数据恢复
   // TIPS: 基础功能下不需要考虑回滚过程中CRASH
   // LAB 2 BEGIN
+  assert(att_.find(xid) != att_.end());
+  LSN last_lsn = att_[xid];
+  Print("LogManager::Undo> last lsn:", last_lsn);
+  SystemManager & SYS = SystemManager::GetInstance();
+  Log * log = SYS.ReadLog(last_lsn);
+  while (log != nullptr){
+    Print("LogManager::Undo>", LogType2str[log->GetType()], " lsn:", log->GetLSN());
+    LSN undo_next;
+    if (log->GetType() == LogType::COMMIT) {
+      auto *commit_log = dynamic_cast<CommitLog *>(log);
+      assert(false);
+    } else if (log->GetType() == LogType::UPDATE) {
+      auto *update_log = dynamic_cast<UpdateLog *>(log);
+      auto lsn = AppendLog();
+      update_log->Undo(lsn);
+      auto * clr_log = new CLRLog(lsn, last_lsn, xid, update_log->GetPrevLSN());
+      clr_log->from_UpdateLog(update_log);
+      WriteLog(clr_log);
+      delete clr_log;
+      att_[xid] = last_lsn = lsn;
+
+      undo_next = update_log->GetPrevLSN();
+    } else if ((log->GetType() == LogType::BEGIN) || (log->GetType() == LogType::ABORT)) {
+      break;
+    } else if (log->GetType() == LogType::CLR){
+      auto * clr_log = dynamic_cast<CLRLog *>(log);
+      undo_next = clr_log->undoNext;
+      Print("LogManager::Undo> get clr log, lsn:", clr_log->GetLSN(), " undonext:", undo_next);
+    } else assert(false);
+
+    delete log;
+    log = SystemManager::GetInstance().ReadLog(undo_next);
+  }
+
+  // 写入end 日志, 删除事务
+  auto lsn = AppendLog();
+  auto * end_log = new EndLog(lsn, att_[xid], xid);
+  WriteLog(end_log);
+  delete end_log;
+  att_.erase(xid);
+  return true;
   // LAB 2 END
 }
 
