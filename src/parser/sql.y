@@ -24,6 +24,7 @@ using namespace dbtrain::ast;
 %token CRASH CHECKPOINT FLUSH
 %token RUN DECLARE ENDDECL SIGNAL_ WAIT_
 %token T_EOF
+%token MARK_UNDO_CRASH
 
 %token <sv_int> VALUE_INT
 %token <sv_float> VALUE_FLOAT
@@ -110,6 +111,10 @@ stmt:
     |   CRASH
         {
             $$ = std::make_shared<Crash>();
+        }
+    |   MARK_UNDO_CRASH
+        {
+            $$ = std::make_shared<Undo_Crash>();
         }
     |   CHECKPOINT
         {

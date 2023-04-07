@@ -322,6 +322,12 @@ class Crash : public SQL {
   virtual std::any accept(Visitor *v);
 };
 
+class Undo_Crash : public SQL {
+ public:
+  Undo_Crash() {}
+  virtual std::any accept(Visitor *v);
+};
+
 class Checkpoint : public SQL {
  public:
   Checkpoint() {}

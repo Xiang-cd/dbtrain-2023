@@ -6,7 +6,7 @@
 #define DBTRAIN_DEBUG_PRINT_HPP
 
 
-// #define Debug
+ #define Debug
 #include <iostream>
 
 template<typename T>

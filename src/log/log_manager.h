@@ -28,6 +28,8 @@ class LogManager {
   LogManager(const LogManager &) = delete;
   void operator=(const LogManager &) = delete;
 
+  void SetUndoCrash();
+
   void Begin(XID xid);
   void Commit(XID xid);
   void Abort(XID xid);

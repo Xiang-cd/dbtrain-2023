@@ -5,7 +5,7 @@
 #include "system/system_manager.h"
 #include "tx/tx_manager.h"
 #include "utils/debug-print.hpp"
-
+static bool will_crash = false;
 namespace dbtrain {
 
 LogManager &LogManager::GetInstance() {
@@ -20,6 +20,11 @@ LogManager::LogManager() {
   current_lsn_ = INIT_LSN;
   checkpoint_lsn_ = NULL_LSN;
   TxManager::GetInstance().SetXID(INIT_XID);
+}
+
+void LogManager::SetUndoCrash() {
+  will_crash = true;
+  Print("LogManager::SetUndoCrash> set crash true");
 }
 
 void LogManager::Init() {
@@ -177,14 +182,13 @@ void LogManager::Analyse(LSN checkpoint_lsn) {
   Log *log = SystemManager::GetInstance().ReadLog(iter_lsn);
   while (log != nullptr) {
     assert(log->GetLSN() == iter_lsn);
-    Print("LogManager::Analyse> lsn;", iter_lsn);
-    Print("LogManager::Analyse> type:", LogType2str[log->GetType()]);
+    Print("LogManager::Analyse> lsn:", iter_lsn, " type:", LogType2str[log->GetType()]);
     if (log->GetType() == LogType::COMMIT) {
       CommitLog *commit_log = dynamic_cast<CommitLog *>(log);
       XID xid = commit_log->GetXID();
       assert(att_.find(xid) != att_.end());
       att_.erase(xid);
-    } else if (log->GetType() == LogType::UPDATE) {
+    } else if (log->GetType() == LogType::UPDATE or log->GetType() == LogType::CLR) {
       UpdateLog *update_log = dynamic_cast<UpdateLog *>(log);
       XID xid = update_log->GetXID();
       att_[xid] = log->GetLSN();
@@ -219,7 +223,7 @@ void LogManager::Redo() {
   Print("LogManager::Redo> min lsn:", redo_lsn);
   Log * log = SystemManager::GetInstance().ReadLog(redo_lsn);
   while (log != nullptr){
-    Print("LogManager::Redo> redoing", log->GetLSN(), LogType2str[log->GetType()]);
+    Print("LogManager::Redo> redoing lsn:", log->GetLSN()," ", LogType2str[log->GetType()]);
     if (log->GetType() == LogType::UPDATE) {
       auto *update_log = dynamic_cast<UpdateLog *>(log);
       update_log->Redo();
@@ -286,9 +290,19 @@ bool LogManager::Undo(XID xid) {
   Print("LogManager::Undo(XID xid)> last lsn:",last_lsn, " xid:", xid);
   SystemManager & SYS = SystemManager::GetInstance();
   Log * log = SYS.ReadLog(last_lsn);
+  int num = 0;
   while (log != nullptr){
     Print("LogManager::Undo(XID xid)>", LogType2str[log->GetType()], " lsn:", log->GetLSN());
     LSN undo_next;
+
+    num ++;
+    if (will_crash and num == 2){
+      Print("LogManager::Undo(XID xid)> undo crashing");
+      will_crash = false;
+      SystemManager::SystemManager::GetInstance().Crash();
+      return false;
+    }
+
     if (log->GetType() == LogType::COMMIT) {
       auto *commit_log = dynamic_cast<CommitLog *>(log);
       assert(false);
@@ -298,6 +312,7 @@ bool LogManager::Undo(XID xid) {
       update_log->Undo(lsn);
       auto * clr_log = new CLRLog(lsn, last_lsn, xid, update_log->GetPrevLSN());
       clr_log->from_UpdateLog(update_log);
+      Print("LogManager::Undo(XID xid)> writing CLRLog");
       WriteLog(clr_log);
       delete clr_log;
       att_[xid] = last_lsn = lsn;
@@ -308,7 +323,7 @@ bool LogManager::Undo(XID xid) {
     } else if (log->GetType() == LogType::CLR){
       auto * clr_log = dynamic_cast<CLRLog *>(log);
       undo_next = clr_log->undoNext;
-      Print("LogManager::Undo> get clr log, lsn:", clr_log->GetLSN(), " undonext:", undo_next);
+      Print("LogManager::Undo(XID xid)> get CLRLog, lsn:", clr_log->GetLSN(), " undonext:", undo_next);
     } else assert(false);
 
     delete log;

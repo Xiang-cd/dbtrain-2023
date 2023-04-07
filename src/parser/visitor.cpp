@@ -300,6 +300,13 @@ std::any Visitor::visit(Crash *) {
   return Result({"CRASH"});
 }
 
+std::any Visitor::visit(Undo_Crash *) {
+  if (executor_ != nullptr) delete executor_;
+  executor_ = nullptr;
+  LogManager::GetInstance().SetUndoCrash();
+  return Result({"Masked undo crash"});
+}
+
 std::any Visitor::visit(Checkpoint *) {
   LogManager::GetInstance().Checkpoint();
   return Result({"SUCCESS"});
