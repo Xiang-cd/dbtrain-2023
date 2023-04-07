@@ -38,6 +38,7 @@ class SystemManager {
   void Flush();
   void Recover();
   void StoreMasterRecord();
+  void StoreMasterRecord(LSN lsn);
   void UsingTest();
   void Analyze();
 

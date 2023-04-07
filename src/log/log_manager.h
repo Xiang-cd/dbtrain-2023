@@ -20,7 +20,7 @@ struct UniquePageID {
     }
   }
 };
-
+void AsyncCheckpoint();
 class LogManager {
  public:
   static LogManager &GetInstance();
@@ -50,11 +50,11 @@ class LogManager {
   void Redo();
   void Undo();
   bool Undo(XID xid);
-
- private:
-  LogManager();
   void WriteLog(Log *log);
   LSN AppendLog();
+ private:
+  LogManager();
+
 
   std::map<XID, LSN> att_;
   std::map<UniquePageID, LSN> dpt_;

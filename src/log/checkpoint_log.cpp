@@ -87,4 +87,8 @@ size_t CheckpointLog::GetLength() const {
   return length;
 }
 
+CkptEndLog::CkptEndLog(): Log() {}
+CkptEndLog::CkptEndLog(LSN lsn): Log(lsn) {}
+LogType CkptEndLog::GetType() const { return LogType::CKPTEND; }
+size_t CkptEndLog::GetLength() const { return Log::GetLength(); }
 }  // namespace dbtrain

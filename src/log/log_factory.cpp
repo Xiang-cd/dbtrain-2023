@@ -22,9 +22,10 @@ Log *LogFactory::LoadLog(const Byte *src) {
     log = new CLRLog();
   } else if (log_type == LogType::END){
     log = new EndLog();
-  }else{
-    assert(false);
-  }
+  }else if (log_type == LogType::CKPTEND){
+    log = new CkptEndLog();
+  } else assert(false);
+
   log->Load(src + sizeof(LogType));
   return log;
 }

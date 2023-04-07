@@ -18,6 +18,16 @@ class CheckpointLog : public Log {
   size_t GetLength() const override;
 };
 
+
+class CkptEndLog : public Log {
+ public:
+  CkptEndLog();
+  ~CkptEndLog() = default;
+  CkptEndLog(LSN lsn);
+  LogType GetType() const override;
+  size_t GetLength() const override;
+};
+
 }  // namespace dbtrain
 
 #endif

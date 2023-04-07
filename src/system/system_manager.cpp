@@ -373,6 +373,15 @@ void SystemManager::StoreMasterRecord() {
   disk_manager_.CloseFile(master_fd);
 }
 
+void SystemManager::StoreMasterRecord(LSN lsn) {
+  if (using_db_.empty()) {
+    throw NoUsingDatabaseError();
+  }
+  int master_fd = disk_manager_.OpenFile(MASTER_RECORD);
+  disk_manager_.WriteRaw(master_fd, (Byte *)&lsn, sizeof(LSN));
+  disk_manager_.CloseFile(master_fd);
+}
+
 LSN SystemManager::LoadMasterRecord() {
   if (using_db_.empty()) {
     throw NoUsingDatabaseError();

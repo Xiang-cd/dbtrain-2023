@@ -5,6 +5,8 @@
 #include "system/system_manager.h"
 #include "tx/tx_manager.h"
 #include "utils/debug-print.hpp"
+#include <thread>
+
 static bool will_crash = false;
 namespace dbtrain {
 
@@ -85,6 +87,30 @@ void LogManager::Abort(XID xid) {
   // 更新ATT
   att_.erase(xid);
   delete log;
+}
+
+
+static void thread_fn(){
+  LogManager & LM = LogManager::GetInstance();
+  LSN lsn = LM.AppendLog();
+  Print("thread::Checkpoint>cur lsn:", lsn);
+  Log *log = new CheckpointLog(lsn);
+  LM.WriteLog(log);
+  delete log;
+  SystemManager::GetInstance().StoreMasterRecord(lsn);
+  lsn = LM.AppendLog();
+  log = new CkptEndLog(lsn);
+  LM.WriteLog(log);
+  delete log;
+  Print("thread::Checkpoint> end cur lsn:", lsn);
+}
+
+
+void AsyncCheckpoint(){
+    Print("thread::Checkpoint> begin");
+    std::thread t1(thread_fn);
+    t1.detach();
+    Print("thread::Checkpoint> Async return");
 }
 
 void LogManager::Checkpoint() {
@@ -199,9 +225,9 @@ void LogManager::Analyse(LSN checkpoint_lsn) {
       TxLog *tx_log = dynamic_cast<TxLog *>(log);
       XID xid = tx_log->GetXID();
       att_[xid] = log->GetLSN();
-    } else {
-      assert(false);
-    }
+    } else if (log->GetType() == LogType::CKPTEND) {
+
+    } else assert(false);
     delete log;
     ++iter_lsn;
     log = SystemManager::GetInstance().ReadLog(iter_lsn);
@@ -246,12 +272,13 @@ void LogManager::Redo() {
       XID xid = abort_log->GetXID();
       Abort(xid);
     } else if (log->GetType() == LogType::COMMIT) {
-      // do nothing
       auto * commit_log = dynamic_cast<CommitLog *>(log);
       att_.erase(commit_log->GetXID());
-    } else if (log->GetType() == LogType::BEGIN){
-      auto * begin_log = dynamic_cast<BeginLog *>(log);
-      att_[begin_log->GetXID()] = begin_log->GetLSN();
+    } else if (log->GetType() == LogType::CKPTEND) {
+      // do nothing
+    }else if (log->GetType() == LogType::BEGIN){
+        auto * begin_log = dynamic_cast<BeginLog *>(log);
+        att_[begin_log->GetXID()] = begin_log->GetLSN();
     }else if (log->GetType() == LogType::CHECKPOINT){
       // do nothing
     }else if (log->GetType() == LogType::END){
@@ -296,10 +323,10 @@ bool LogManager::Undo(XID xid) {
     LSN undo_next;
 
     num ++;
-    if (will_crash and num == 2){
+    if (will_crash and num == 3){
       Print("LogManager::Undo(XID xid)> undo crashing");
       will_crash = false;
-      SystemManager::SystemManager::GetInstance().Crash();
+      SYS.Crash();
       return false;
     }
 

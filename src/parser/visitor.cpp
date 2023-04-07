@@ -308,7 +308,8 @@ std::any Visitor::visit(Undo_Crash *) {
 }
 
 std::any Visitor::visit(Checkpoint *) {
-  LogManager::GetInstance().Checkpoint();
+//  LogManager::GetInstance().Checkpoint();
+  AsyncCheckpoint();
   return Result({"SUCCESS"});
 }
 
