@@ -59,7 +59,7 @@ Result SystemManager::UseDatabase(const std::string &db_name) {
       throw DatabaseNotExistsError(db_name);
     }
     if (!using_db_.empty()) {
-      CloseDatabase(db_name);
+      CloseDatabase(using_db_);
     }
     if (using_db_.empty()) {
       disk_manager_.ChangeDirectory(db_name);
