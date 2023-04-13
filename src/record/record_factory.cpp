@@ -125,6 +125,23 @@ void RecordFactory::SetRid(Record *record, Rid rid) {
 // TODO: 设置MVCC相关隐藏列的接口
 // TIPS: 基础功能仅需要设置创建版本号和删除版本号
 // LAB 3 BEGIN
+
+XID RecordFactory::GetCreateXID(Record * r){
+  return dynamic_cast<IntField *>(r->field_list_[r->GetNumField() - CREATE_XID_OFFSET])->GetValue();
+};
+XID RecordFactory::GetDeleteXID(Record * r){
+  return dynamic_cast<IntField *>(r->field_list_[r->GetNumField() - DELETE_XID_OFFSET])->GetValue();
+};
+
+void RecordFactory::SetCreateXID(Record * r, XID xid){
+  Field * xid_field = new IntField(xid);
+  r->SetField(r->GetNumField() - CREATE_XID_OFFSET, xid_field);
+};
+void RecordFactory::SetDeleteXID(Record * r, XID xid){
+  Field * xid_field = new IntField(xid);
+  r->SetField(r->GetNumField() - DELETE_XID_OFFSET, xid_field);
+};
+
 // LAB 3 END
 
 }  // namespace dbtrain

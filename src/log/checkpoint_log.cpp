@@ -12,9 +12,7 @@ void CheckpointLog::Load(const Byte *src) {
   Log::Load(src);
   size_t offset = sizeof(LSN);
   LogManager &LM = LogManager::GetInstance();
-  // TODO: 恢复当前事务编号
-  // LAB 3 BEGIN
-  // LAB 3 END
+
 
 
   // TODO: 加载MasterRecord对应的Checkpoint Log
@@ -22,6 +20,11 @@ void CheckpointLog::Load(const Byte *src) {
   // LAB 2 BEGIN
   auto & dpt = LM.dpt_;
   auto & att = LM.att_;
+  // LAB 3 BEGIN
+  XID cur_xid;
+  memcpy(&cur_xid, src + offset, sizeof(XID)); offset += sizeof(XID);
+  TxManager::GetInstance().SetXID(cur_xid);
+  // LAB 3 END
   size_t att_len , dpt_len;
   memcpy(&att_len, src + offset,sizeof(size_t)); offset += sizeof(size_t);
   memcpy(&dpt_len, src + offset,sizeof(size_t)); offset += sizeof(size_t);
@@ -51,8 +54,7 @@ size_t CheckpointLog::Store(Byte *dst) {
   LogManager &LM = LogManager::GetInstance();
   size_t fsize = Log::Store(dst);
   // TODO: 存储当前事务编号
-  // LAB 3 BEGIN
-  // LAB 3 END
+
   // TODO: 存储LogManager相关信息，返回Store的数据长度
   // TIPS: 不添加缓存机制情况下，仅需要保存ATT和DPT
   // TIPS: 考虑缓存机制情况下，需要额外存储Flushed LSN
@@ -60,6 +62,10 @@ size_t CheckpointLog::Store(Byte *dst) {
   const auto & dpt = LM.dpt_;
   const auto & att = LM.att_;
   auto offset = fsize;
+  // LAB 3 BEGIN
+  XID cur_xid = TxManager::GetInstance().GetXID();
+  memcpy(dst + offset, &cur_xid, sizeof(XID)); offset += sizeof(XID);
+  // LAB 3 END
   size_t dpt_len = dpt.size();
   size_t att_len = att.size();
   memcpy(dst + offset, &att_len, sizeof(size_t)); offset += sizeof(size_t);

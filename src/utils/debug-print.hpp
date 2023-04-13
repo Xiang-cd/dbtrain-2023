@@ -6,8 +6,12 @@
 #define DBTRAIN_DEBUG_PRINT_HPP
 
 
-// #define Debug
+//#define Debug
+//#define DebugLAB3
 #include <iostream>
+
+
+
 
 template<typename T>
 void Print(const T& t) {
@@ -21,6 +25,24 @@ void Print(const T& t, const args&... param) {
 #ifdef Debug
   std::cout << t ;
   Print(param...);
+#endif
+}
+
+
+
+template<typename T>
+void LAB3Print(const T& t) {
+#ifdef DebugLAB3
+  std::cout << t << std::endl;
+#endif
+}
+
+
+template<typename T, typename... args>
+void LAB3Print(const T& t, const args&... param) {
+#ifdef DebugLAB3
+  std::cout << t ;
+  LAB3Print(param...);
 #endif
 }
 

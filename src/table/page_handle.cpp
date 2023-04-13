@@ -174,24 +174,56 @@ void PageHandle::DeleteRecord(SlotID slot_no, XID xid, bool) {
   // TIPS: 注意需要利用锁保证页面仅能同时被单个线程修改
   // TIPS: 注意MVCC删除不能直接清除数据，只是设置对应记录失效
   // LAB 3 BEGIN
+  LockManager &lock_manager = LockManager::GetInstance();
+  lock_manager.Lock("Page" + std::to_string(page_->GetPageId().page_no));
+
+  RecordFactory RF(&meta_);
+  Record * r = RF.LoadRecord(slots_ + slot_no * record_length_);
+  RecordFactory::SetDeleteXID(r, xid);
+  RF.StoreRecord(slots_ + slot_no * record_length_, r);
+
+  page_->SetDirty();
+  SetLSN(LogManager::GetInstance().GetCurrent());
+
+  lock_manager.Unlock("Page" + std::to_string(page_->GetPageId().page_no));
+
   // LAB 3 END
 }
 
 RecordList PageHandle::LoadRecords(XID xid, const std::set<XID> &uncommit_xids) {
   // 获取共享锁
+  LAB3Print("PageHandle::LoadRecords> cur xid:", xid);
   LockManager &lock_manager = LockManager::GetInstance();
   lock_manager.LockShared("Page" + std::to_string(page_->GetPageId().page_no));
   // 生成判定集合
   assert(uncommit_xids.find(xid) == uncommit_xids.end());
 
+
   int slot_no = -1;
   std::vector<Record *> record_vector;
-  RecordFactory record_factory(&meta_);
+  RecordFactory RF(&meta_);
+  for (XID uncommit_xid:uncommit_xids){
+    LAB3Print("PageHandle::LoadRecords> uncommit_xid:", uncommit_xid);
+  }
+
   while ((slot_no = bitmap_.NextNotFree(slot_no)) != -1) {
-    Record *record = record_factory.LoadRecord(slots_ + slot_no * record_length_);
+    Record *record = RF.LoadRecord(slots_ + slot_no * record_length_);
     // TODO: MVCC情况下的数据读取
     // TIPS: 注意MVCC在数据读取过程中存在无效数据（未提交的删除以及未开始的插入），注意去除
     // LAB 3 BEGIN
+    auto del_xid = RF.GetDeleteXID(record);
+    auto createxid = RF.GetCreateXID(record);
+    auto del_it = uncommit_xids.find(del_xid);
+    auto create_it = uncommit_xids.find(createxid);
+
+
+    if (createxid > xid) continue;
+
+    if (del_xid != INVALID_XID and del_xid <= xid and del_it == uncommit_xids.end())
+      continue;
+
+    if (create_it != uncommit_xids.end()) continue;
+
     // LAB 3 END
     record_vector.push_back(record);
   }

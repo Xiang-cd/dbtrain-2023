@@ -58,9 +58,7 @@ Table::~Table() {
     Store(meta_page->GetData());
     meta_page->SetDirty();
   }
-//  Print("table", table_name_," flushiing file");
   buffer_manager_.FlushFile(meta_fd_);
-//  Print("table", table_name_," flushiing meta");
   buffer_manager_.FlushFile(data_fd_);
 }
 
@@ -112,7 +110,6 @@ void Table::InsertRecord(Record *record) {
     }
   }
 
-  // TODO: 添加数据插入日志信息
   // TIPS: 注意此处需要添加到下面LAB 1添加代码之间
   // TIPS: 注意ARIES使用的是WAL，所以需要先写入日志，再更新数据
   // TIPS: 注意记录日志时需要考虑隐藏列的内容
@@ -121,6 +118,7 @@ void Table::InsertRecord(Record *record) {
   // LAB 2 BEGIN
   // LAB 2 END
   XID xid = TxManager::GetInstance().Get(std::this_thread::get_id());
+  LAB3Print("Table::InsertRecord> xid:", xid);
   LogManager &LM = LogManager::GetInstance();
 
 
@@ -151,7 +149,9 @@ void Table::InsertRecord(Record *record) {
   // 保存记录到buffer, insert 和 log 都采用直接拷贝的方式
   Byte record_raw[meta_.record_length_];
   RecordFactory RF = RecordFactory(&meta_);
-  RF.SetRid(record, {page_no, slot_no});
+  RecordFactory::SetRid(record, {page_no, slot_no});
+  RecordFactory::SetCreateXID(record, xid);
+  RecordFactory::SetDeleteXID(record, INVALID_XID);
   RF.StoreRecord(record_raw, record);
 
   LSN lsn = LM.InsertRecordLog(xid, table_name_, {page_no, slot_no}, meta_.record_length_, record_raw);
@@ -182,6 +182,7 @@ void Table::DeleteRecord(const Rid &rid) {
   // LAB 2 BEGIN
   // LAB 2 END
   XID xid = TxManager::GetInstance().Get(std::this_thread::get_id());
+  LAB3Print("Table::DeleteRecord> xid:", xid);
   LogManager &LM = LogManager::GetInstance();
 
   // TODO: 更改LAB 1,2代码，适应MVCC情景
@@ -195,13 +196,16 @@ void Table::DeleteRecord(const Rid &rid) {
   // TIPS: 注意更新Meta的first_free_信息
   // LAB 1 BEGIN
   PageHandle PH = GetPage(rid.page_no);
+  auto RF = RecordFactory(&meta_);
   LM.DeleteRecordLog(xid, table_name_, rid, meta_.record_length_, PH.GetRaw(rid.slot_no));
-  PH.DeleteRecord(rid.slot_no);
-
-  if (rid.page_no < meta_.first_free_){
-    meta_.first_free_ = rid.page_no;
-    meta_modified = true;
-  }
+  // lab2 using version
+//  PH.DeleteRecord(rid.slot_no, LM.GetCurrent());
+  PH.DeleteRecord(rid.slot_no, xid, false);
+// 因为没有真的删除, 所以也不需要设置first free
+//  if (rid.page_no < meta_.first_free_){
+//    meta_.first_free_ = rid.page_no;
+//    meta_modified = true;
+//  }
 
   // LAB 1 END
 }
@@ -213,6 +217,7 @@ void Table::UpdateRecord(const Rid &rid, Record *record) {
   // LAB 2 BEGIN
   // LAB 2 END
   XID xid = TxManager::GetInstance().Get(std::this_thread::get_id());
+  LAB3Print("Table::UpdateRecord> xid:", xid);
   LogManager &LM = LogManager::GetInstance();
   // TODO: 更改LAB 1,2代码，适应MVCC情景
   // TIPS: 注意更新过程与之前不同，需要采用删除旧数据并插入新数据的方法
@@ -226,6 +231,7 @@ void Table::UpdateRecord(const Rid &rid, Record *record) {
   // LAB 1 BEGIN
 
   // 依然有并发问题, 如果直接对get Raw 做更新, 当别的线程拿到所进行修改, 而这边直接getraw
+
   Byte record_raw[meta_.record_length_];
   RecordFactory RF = RecordFactory(&meta_);
   RF.StoreRecord(record_raw, record);
