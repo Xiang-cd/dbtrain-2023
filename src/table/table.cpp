@@ -222,8 +222,7 @@ void Table::UpdateRecord(const Rid &rid, Record *record) {
   // TODO: 更改LAB 1,2代码，适应MVCC情景
   // TIPS: 注意更新过程与之前不同，需要采用删除旧数据并插入新数据的方法
   // TIPS: 可以调用DeleteRecord和InsertRecord的接口
-  // LAB 3 BEGIN
-  // LAB 3 END
+
 
   // TODO: 更新记录
   // TIPS: 利用PageID查找对应的页面，通过PageHandle解析页面
@@ -238,8 +237,13 @@ void Table::UpdateRecord(const Rid &rid, Record *record) {
   PageHandle PH = GetPage(rid.page_no);
 
   LM.UpdateRecordLog(xid, table_name_, rid, meta_.record_length_, PH.GetRaw(rid.slot_no), meta_.record_length_, record_raw);
+  // LAB 3 BEGIN
+  DeleteRecord(rid);
+  InsertRecord(record);
+  // LAB 3 END
 
-  PH.UpdateRecord(rid.slot_no, record);
+  // lab2 版本
+  //  PH.UpdateRecord(rid.slot_no, record);
   // LAB 1 END
 }
 
