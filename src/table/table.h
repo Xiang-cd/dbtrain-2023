@@ -42,6 +42,7 @@ class Table {
   vector<string> GetColumnNames() const;
   FieldType GetColumnType(int col_idx) const;
   void StoreMeta();
+  void Collect(XID min_xid);
 
  private:
   TableMeta meta_;

@@ -40,6 +40,7 @@ class SystemManager {
   void StoreMasterRecord();
   void UsingTest();
   void Analyze();
+  std::unordered_map<std::string, Table *> GetTables() const { return tables_; }
 
  public:
   Table *GetTable(const std::string &table_name);

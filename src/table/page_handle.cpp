@@ -97,6 +97,30 @@ RecordList PageHandle::LoadRecords() {
   return record_vector;
 }
 
+
+
+void PageHandle::Collect(XID min_xid) {
+  // 获取共享锁
+  LockManager &lock_manager = LockManager::GetInstance();
+  lock_manager.LockShared("Page" + std::to_string(page_->GetPageId().page_no));
+  int slot_no = -1;
+  RecordFactory RF(&meta_);
+  while ((slot_no = bitmap_.NextNotFree(slot_no)) != -1) {
+    Record *record = RF.LoadRecord(slots_ + slot_no * record_length_);
+    auto del_xid = RecordFactory::GetDeleteXID(record);
+    if (del_xid != INVALID_XID and del_xid < min_xid){
+      LAB3Print("PageHandle::Collect> delete xid:", del_xid,
+                " page:", page_->GetPageId().page_no, " slot_no:", slot_no);
+      bitmap_.Reset(slot_no);
+      page_->SetDirty();
+    }
+    delete record;
+  }
+
+  // 释放共享锁
+  lock_manager.UnlockShared("Page" + std::to_string(page_->GetPageId().page_no));
+}
+
 uint8_t *PageHandle::GetRaw(SlotID slot_no) { return slots_ + slot_no * record_length_; }
 
 Record *PageHandle::GetRecord(SlotID slot_no) {

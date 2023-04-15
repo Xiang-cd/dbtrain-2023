@@ -118,7 +118,6 @@ void Table::InsertRecord(Record *record) {
   // LAB 2 BEGIN
   // LAB 2 END
   XID xid = TxManager::GetInstance().Get(std::this_thread::get_id());
-  LAB3Print("Table::InsertRecord> xid:", xid);
   LogManager &LM = LogManager::GetInstance();
 
 
@@ -150,6 +149,7 @@ void Table::InsertRecord(Record *record) {
   Byte record_raw[meta_.record_length_];
   RecordFactory RF = RecordFactory(&meta_);
   RecordFactory::SetRid(record, {page_no, slot_no});
+  LAB3Print("Table::InsertRecord> xid:", xid, " page num:", page_no, " slot_no:", slot_no);
   RecordFactory::SetCreateXID(record, xid);
   RecordFactory::SetDeleteXID(record, INVALID_XID);
   RF.StoreRecord(record_raw, record);
@@ -162,7 +162,7 @@ void Table::InsertRecord(Record *record) {
     // 主动寻找最近的空页
     PageID cur_page_no = PH.page_->GetPageId().page_no;
     PageID next_free = NULL_PAGE;
-    for (PageID i =  cur_page_no + 1; i < meta_.table_end_page_; ++i) {
+    for (PageID i = 0; i < meta_.table_end_page_; ++i) {
       if (!GetPage(i).Full()) {
         next_free = i;
         break;
@@ -182,7 +182,7 @@ void Table::DeleteRecord(const Rid &rid) {
   // LAB 2 BEGIN
   // LAB 2 END
   XID xid = TxManager::GetInstance().Get(std::this_thread::get_id());
-  LAB3Print("Table::DeleteRecord> xid:", xid);
+  LAB3Print("Table::DeleteRecord> xid:", xid, " page:", rid.page_no, " slot_no:", rid.slot_no);
   LogManager &LM = LogManager::GetInstance();
 
   // TODO: 更改LAB 1,2代码，适应MVCC情景
@@ -245,6 +245,13 @@ void Table::UpdateRecord(const Rid &rid, Record *record) {
   // lab2 版本
   //  PH.UpdateRecord(rid.slot_no, record);
   // LAB 1 END
+}
+
+void Table::Collect(XID min_xid) {
+  for (int i = 0; i < meta_.table_end_page_; ++i) {
+    auto PH = GetPage(i);
+    PH.Collect(min_xid);
+  }
 }
 
 int Table::GetColumnSize() const { return meta_.GetSize(); }

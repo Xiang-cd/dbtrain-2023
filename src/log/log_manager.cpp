@@ -82,6 +82,17 @@ void LogManager::Abort(XID xid) {
   delete log;
 }
 
+
+
+void Collect(XID min_xid) {
+  auto &SYS = SystemManager::GetInstance();
+  auto tables = SYS.GetTables();
+  for (auto & table_pair:tables){
+    table_pair.second->Collect(min_xid);
+  }
+}
+
+
 void LogManager::Checkpoint() {
   // 记录Checkpoint日志后更新MasterRecord
   LSN lsn = AppendLog();
@@ -90,6 +101,17 @@ void LogManager::Checkpoint() {
   WriteLog(log);
   delete log;
   SystemManager::GetInstance().StoreMasterRecord();
+
+  XID min_xid = INVALID_XID ;
+  for (const auto &att_pair : att_) {
+    if (min_xid == INVALID_XID){
+      min_xid = att_pair.first;
+    }else if (att_pair.first < min_xid) {
+      min_xid = att_pair.first;
+    }
+  }
+  LAB3Print("LogManager::Checkpoint>collecting min_xid:", min_xid);
+  Collect(min_xid);
 }
 
 LSN LogManager::InsertRecordLog(XID xid, const string &table_name, Rid rid, size_t new_len, const void *new_val) {

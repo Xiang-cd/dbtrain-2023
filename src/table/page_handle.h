@@ -44,6 +44,7 @@ class PageHandle {
   // 第三个参数没有实际含义，仅用于区分重载函数 DeleteRecord(SlotID slot_no, LSN lsn)
   void DeleteRecord(SlotID, XID xid, bool);
   RecordList LoadRecords(XID xid, const std::set<XID> &uncommit_xids);
+  void Collect(XID min_xid);
 
   Rid Next();
 
