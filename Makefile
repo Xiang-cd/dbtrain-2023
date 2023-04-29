@@ -45,3 +45,15 @@ l32:
 
 l33:
 	./build/bin/cli -s < ../dbtrain-lab-test/lab3/test/30_delete.sql
+
+l40:
+	./build/bin/cli -s < ../dbtrain-lab-test/lab4/test/00_setup.sql
+l41:
+	./build/bin/cli -s < ../dbtrain-lab-test/lab4/test/10_and_or.sql
+
+l42:
+	./build/bin/cli -s < ../dbtrain-lab-test/lab4/test/20_basic_join.sql
+l43:
+	./build/bin/cli -s < ../dbtrain-lab-test/lab4/test/30_multi_join.sql
+l44:
+	./build/bin/cli -s < ../dbtrain-lab-test/lab4/test/40_large_join.sql

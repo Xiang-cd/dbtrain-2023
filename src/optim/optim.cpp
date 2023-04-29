@@ -4,10 +4,12 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "utils/debug-print.hpp"
 #include "exception/exceptions.h"
 #include "exception/table_exceptions.h"
 #include "oper/conditions/conditions.h"
 #include "oper/conditions/join_condition.h"
+#include "oper/conditions/logic_condition.h"
 #include "oper/nodes.h"
 #include "stats_manager.h"
 #include "system/system_manager.h"
@@ -207,23 +209,72 @@ std::any Optimizer::visit(JoinConditionNode *cond) {
   // TIPS: 将 JoinCondition 添加到 table_filter_ 中
   // TIPS: 可以将两个表名组合成一个新的表名，以 delimiter 变量为分隔符，作为 table_filter_ 的 key
   // LAB 4 BEGIN
+    return nullptr;
   // LAB 4 END
 }
 
 std::any Optimizer::visit(AndConditionNode *and_condition) {
-  // TODO: 条件合取
   // TIPS: 调用 and_condition lhs_ 和 rhs_ 的 accept 函数进行访问
   // TIPS: parser 会将多个 AND 条件解析为左深树
   // TIPS: 将 Condition 记录在 table_filter_ 中
   // TIPS: 函数需要添加返回值，否则可能出现段错误
   // LAB 4 BEGIN
+    auto cpair_l = std::any_cast<std::pair<string, Condition *>>(and_condition->lhs_->accept(this)) ;
+    auto cpair_r = std::any_cast<std::pair<string, Condition *>>(and_condition->rhs_->accept(this));
+
+    auto table_name_l = cpair_l.first;
+    auto table_name_r = cpair_r.first;
+    assert(table_name_l == table_name_l);
+    auto & table_name = table_name_r;
+
+    auto cond_l = cpair_l.second;
+    auto cond_r = cpair_r.second;
+    vector<Condition *> conds = {cond_l, cond_r};
+
+    if (table_filter_.find(table_name) != table_filter_.end()) {
+      conds.push_back(table_filter_[table_name]);
+    }
+
+    Condition *condition = new AndCondition(conds);
+    if (table_filter_.find(table_name) == table_filter_.end()) {
+      table_filter_[table_name] = condition;
+      condition = nullptr;
+    }else{
+      table_filter_[table_name] = condition;
+    }
+    std::pair<string, Condition *> cpair{table_name, condition};
+    return cpair_l;
   // LAB 4 END
 }
 
 std::any Optimizer::visit(OrConditionNode *or_condition) {
-  // TODO: 条件析取
   // TIPS: 与 AndCondition 流程相同
   // LAB 4 BEGIN
+  auto cpair_l = std::any_cast<std::pair<string, Condition *>>(or_condition->lhs_->accept(this)) ;
+  auto cpair_r = std::any_cast<std::pair<string, Condition *>>(or_condition->rhs_->accept(this));
+
+  auto table_name_l = cpair_l.first;
+  auto table_name_r = cpair_r.first;
+  assert(table_name_l == table_name_l);
+  auto & table_name = table_name_r;
+
+  auto cond_l = cpair_l.second;
+  auto cond_r = cpair_r.second;
+  vector<Condition *> conds = {cond_l, cond_r};
+
+  if (table_filter_.find(table_name) != table_filter_.end()) {
+    conds.push_back(table_filter_[table_name]);
+  }
+
+  Condition *condition = new OrCondition(conds);
+  if (table_filter_.find(table_name) == table_filter_.end()) {
+    table_filter_[table_name] = condition;
+    condition = nullptr;
+  }else{
+    table_filter_[table_name] = condition;
+  }
+  std::pair<string, Condition *> cpair{table_name, condition};
+  return cpair_l;
   // LAB 4 END
 }
 
