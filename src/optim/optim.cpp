@@ -129,6 +129,19 @@ std::any Optimizer::visit(Select *select) {
   // TIPS: 使用 uf_set 维护表的连接关系
   // TIPS: 需维护 table_shift_ 中的偏移量，以使投影算子可以正常工作
   // LAB 4 BEGIN
+  for (auto & iter:table_filter_){
+    LAB4Print("Optimizer::visit(Se>", iter.first);
+    auto cond = dynamic_cast<JoinCondition *>(iter.second);
+    if (cond != nullptr){
+      auto union_table_name = iter.first;
+      size_t found = union_table_name.rfind(delimiter);
+      auto name_l = union_table_name.substr(0, found);
+      auto name_r = union_table_name.substr(found + 1, union_table_name.length());
+      LAB4Print("union_table_name ", union_table_name, "   ", name_l, "  ", name_r );
+      uf_set.Union(name_l, name_r);
+
+    }
+  }
   // LAB 4 END
 
   string first_table = uf_set.Find(select->tables_[0]);
@@ -198,7 +211,7 @@ std::any Optimizer::visit(GreaterConditionNode *cond) {
   return cpair;
 }
 
-std::any Optimizer::visit(JoinConditionNode *cond) {
+std::any Optimizer::visit(JoinConditionNode *join_condition) {
   // TODO: （高级功能）连接运算左右算子选择
   // TIPS: 注意，部分连接运算与左右算子顺序相关，需要调整正确的执行数据
   // TIPS: 注意，在基础功能测例中不检查，但是建议使用了顺序相关JOIN算法的同学正确调整JOIN顺序
@@ -209,6 +222,23 @@ std::any Optimizer::visit(JoinConditionNode *cond) {
   // TIPS: 将 JoinCondition 添加到 table_filter_ 中
   // TIPS: 可以将两个表名组合成一个新的表名，以 delimiter 变量为分隔符，作为 table_filter_ 的 key
   // LAB 4 BEGIN
+  string table_name_l = join_condition->lhs_->table_name_;
+  string col_name_l = join_condition->lhs_->col_name_;
+  string table_name_r = join_condition->rhs_->table_name_;
+  string col_name_r = join_condition->rhs_->col_name_;
+  auto col_idx_l = meta_->GetTable(table_name_l)->GetColumnIdx(col_name_l);
+  auto col_idx_r = meta_->GetTable(table_name_r)->GetColumnIdx(col_name_r);
+
+  auto table_name = table_name_l + delimiter + table_name_r;
+  LAB4Print("Optimizer::visit(JoinConditionNode>", table_name);
+  Condition *condition = new JoinCondition(col_idx_l, col_idx_r);
+  if (table_filter_.find(table_name) == table_filter_.end()) {
+    table_filter_[table_name] = condition;
+    //    condition = nullptr;
+  }
+  LAB4Print( "if null", dynamic_cast<JoinCondition *>(condition) == nullptr);
+  std::pair<string, Condition *> cpair{table_name, condition};
+  return cpair;
     return nullptr;
   // LAB 4 END
 }

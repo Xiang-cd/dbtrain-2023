@@ -17,6 +17,16 @@ RecordList JoinNode::Next() {
   // TIPS: 通过 GetLeft()->Next() 和 GetRight()->Next() 获取记录
   // TIPS: 通过 cond_->Fit() 判断是否符合条件
   // LAB 4 BEGIN
+  auto ll = GetLeft()->Next();
+  auto rl =  GetRight()->Next();
+  RecordList outlist = {};
+  for (int i = 0; i < ll.size(); ++i) {
+    for (int j = 0; j < rl.size(); ++j) {
+      if (cond_->Fit(ll[i], rl[j]))
+        outlist.push_back(Concat(ll[i], rl[j]));
+    }
+  }
+
   // LAB 4 END
 }
 
