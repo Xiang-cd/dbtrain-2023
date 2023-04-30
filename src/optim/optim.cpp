@@ -130,7 +130,7 @@ std::any Optimizer::visit(Select *select) {
   // TIPS: 需维护 table_shift_ 中的偏移量，以使投影算子可以正常工作
   // LAB 4 BEGIN
   for (auto & iter:table_filter_){
-    LAB4Print("Optimizer::visit(Se>", iter.first);
+    LAB4Print("Select table filter>", iter.first);
     auto cond = dynamic_cast<JoinCondition *>(iter.second);
     if (cond != nullptr){
       auto union_table_name = iter.first;
@@ -138,7 +138,33 @@ std::any Optimizer::visit(Select *select) {
       auto name_l = union_table_name.substr(0, found);
       auto name_r = union_table_name.substr(found + 1, union_table_name.length());
       LAB4Print("union_table_name ", union_table_name, "   ", name_l, "  ", name_r );
+      cond->LeftShift(table_shift_[name_l]);
+      cond->RightShift(table_shift_[name_r]);
+      auto root_l = uf_set.Find(name_l);
+      auto root_r = uf_set.Find(name_r);
+      LAB4Print("name_l:", name_l, " root_l:", root_l, " shift:",table_shift_[name_l]);
+      LAB4Print("name_r:", name_r, " root_r:", root_r, " shift:", table_shift_[name_r]);
+      auto join_node = new JoinNode(table_map[root_l], table_map[root_r], cond);
+
+      if (table_record_len.find(root_l) == table_record_len.end()){
+        table_record_len[root_l] = meta_->GetTable(root_l)->GetColumnSize();
+      }
+      if (table_record_len.find(root_r) == table_record_len.end()){
+        table_record_len[root_r] = meta_->GetTable(root_r)->GetColumnSize();
+      }
+
+
+      auto rs = uf_set.FindAll(name_r);
+      for (auto & name:rs){
+        LAB4Print("r_names:", name);
+        table_shift_[name] += table_record_len[root_l];
+      }
+
       uf_set.Union(name_l, name_r);
+      auto root = uf_set.Find(name_r);
+      table_map[root] = join_node;
+      LAB4Print("root:", root);
+      table_record_len[root] =  table_record_len[root_r] + table_record_len[root_l];
 
     }
   }
@@ -157,6 +183,7 @@ std::any Optimizer::visit(Select *select) {
     vector<int> proj_idxs{};
     for (const auto &col : select->cols_) {
       int offset = table_shift_[col->table_name_];
+      LAB4Print("SEL project: table:", col->table_name_, " colname:", col->col_name_, " ", offset + meta_->GetTable(col->table_name_)->GetColumnIdx(col->col_name_));
       proj_idxs.push_back(offset + meta_->GetTable(col->table_name_)->GetColumnIdx(col->col_name_));
     }
     plan = new ProjectNode(plan, proj_idxs);
@@ -236,10 +263,8 @@ std::any Optimizer::visit(JoinConditionNode *join_condition) {
     table_filter_[table_name] = condition;
     //    condition = nullptr;
   }
-  LAB4Print( "if null", dynamic_cast<JoinCondition *>(condition) == nullptr);
   std::pair<string, Condition *> cpair{table_name, condition};
   return cpair;
-    return nullptr;
   // LAB 4 END
 }
 
@@ -249,62 +274,86 @@ std::any Optimizer::visit(AndConditionNode *and_condition) {
   // TIPS: 将 Condition 记录在 table_filter_ 中
   // TIPS: 函数需要添加返回值，否则可能出现段错误
   // LAB 4 BEGIN
-    auto cpair_l = std::any_cast<std::pair<string, Condition *>>(and_condition->lhs_->accept(this)) ;
-    auto cpair_r = std::any_cast<std::pair<string, Condition *>>(and_condition->rhs_->accept(this));
-
+  auto res_l = and_condition->lhs_->accept(this);
+  auto res_r = and_condition->rhs_->accept(this);
+  try{
+    auto cpair_l = std::any_cast<std::pair<string, Condition *>>(res_l);
+    auto cpair_r = std::any_cast<std::pair<string, Condition *>>(res_r);
     auto table_name_l = cpair_l.first;
     auto table_name_r = cpair_r.first;
-    assert(table_name_l == table_name_l);
-    auto & table_name = table_name_r;
 
-    auto cond_l = cpair_l.second;
-    auto cond_r = cpair_r.second;
-    vector<Condition *> conds = {cond_l, cond_r};
+    if (table_name_l == table_name_r){
+      LAB4Print("Optimizer::visit(AndConditionNode>", table_name_r);
+      auto & table_name = table_name_r;
+      auto cond_l = cpair_l.second;
+      auto cond_r = cpair_r.second;
+      vector<Condition *> conds = {cond_l, cond_r};
 
-    if (table_filter_.find(table_name) != table_filter_.end()) {
-      conds.push_back(table_filter_[table_name]);
+      if (table_filter_.find(table_name) != table_filter_.end()) {
+        conds.push_back(table_filter_[table_name]);
+      }
+
+      Condition *condition = new AndCondition(conds);
+      if (table_filter_.find(table_name) == table_filter_.end()) {
+        table_filter_[table_name] = condition;
+        condition = nullptr;
+      }else{
+        table_filter_[table_name] = condition;
+      }
+      std::pair<string, Condition *> cpair{table_name, condition};
+      return cpair_l;
+    } else {
+      LAB4Print("Optimizer::visit(AndConditionNode>", table_name_l, " ", table_name_r);
+      return nullptr;
     }
+  }
+  catch(const std::bad_any_cast& e){
+    return nullptr;
+  }
 
-    Condition *condition = new AndCondition(conds);
-    if (table_filter_.find(table_name) == table_filter_.end()) {
-      table_filter_[table_name] = condition;
-      condition = nullptr;
-    }else{
-      table_filter_[table_name] = condition;
-    }
-    std::pair<string, Condition *> cpair{table_name, condition};
-    return cpair_l;
   // LAB 4 END
 }
 
 std::any Optimizer::visit(OrConditionNode *or_condition) {
   // TIPS: 与 AndCondition 流程相同
   // LAB 4 BEGIN
-  auto cpair_l = std::any_cast<std::pair<string, Condition *>>(or_condition->lhs_->accept(this)) ;
-  auto cpair_r = std::any_cast<std::pair<string, Condition *>>(or_condition->rhs_->accept(this));
+  auto res_l = or_condition->lhs_->accept(this);
+  auto res_r = or_condition->rhs_->accept(this);
+  try{
+    auto cpair_l = std::any_cast<std::pair<string, Condition *>>(res_l);
+    auto cpair_r = std::any_cast<std::pair<string, Condition *>>(res_r);
+    auto table_name_l = cpair_l.first;
+    auto table_name_r = cpair_r.first;
 
-  auto table_name_l = cpair_l.first;
-  auto table_name_r = cpair_r.first;
-  assert(table_name_l == table_name_l);
-  auto & table_name = table_name_r;
+    if (table_name_l == table_name_r){
+      LAB4Print("OrConditionNode>", table_name_r);
+      auto & table_name = table_name_r;
+      auto cond_l = cpair_l.second;
+      auto cond_r = cpair_r.second;
+      vector<Condition *> conds = {cond_l, cond_r};
 
-  auto cond_l = cpair_l.second;
-  auto cond_r = cpair_r.second;
-  vector<Condition *> conds = {cond_l, cond_r};
+      if (table_filter_.find(table_name) != table_filter_.end()) {
+        conds.push_back(table_filter_[table_name]);
+      }
 
-  if (table_filter_.find(table_name) != table_filter_.end()) {
-    conds.push_back(table_filter_[table_name]);
+      Condition *condition = new OrCondition(conds);
+      if (table_filter_.find(table_name) == table_filter_.end()) {
+        table_filter_[table_name] = condition;
+        condition = nullptr;
+      }else{
+        table_filter_[table_name] = condition;
+      }
+      std::pair<string, Condition *> cpair{table_name, condition};
+      return cpair_l;
+    } else {
+      LAB4Print("OrConditionNode>", table_name_l, " ", table_name_r);
+      return nullptr;
+    }
+  }
+  catch(const std::bad_any_cast& e){
+    return nullptr;
   }
 
-  Condition *condition = new OrCondition(conds);
-  if (table_filter_.find(table_name) == table_filter_.end()) {
-    table_filter_[table_name] = condition;
-    condition = nullptr;
-  }else{
-    table_filter_[table_name] = condition;
-  }
-  std::pair<string, Condition *> cpair{table_name, condition};
-  return cpair_l;
   // LAB 4 END
 }
 

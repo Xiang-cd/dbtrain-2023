@@ -1,7 +1,7 @@
 #include "join_node.h"
 
 #include "optim/stats_manager.h"
-
+#include "utils/debug-print.hpp"
 namespace dbtrain {
 
 JoinNode::JoinNode(OperNode *left, OperNode *right, JoinCondition *cond) : OperNode({left, right}), cond_(cond) {}
@@ -17,16 +17,29 @@ RecordList JoinNode::Next() {
   // TIPS: 通过 GetLeft()->Next() 和 GetRight()->Next() 获取记录
   // TIPS: 通过 cond_->Fit() 判断是否符合条件
   // LAB 4 BEGIN
+  LAB4Print("JoinNode: lidx", cond_->idx_left_, " ridx:", cond_->idx_right_);
   auto ll = GetLeft()->Next();
   auto rl =  GetRight()->Next();
-  RecordList outlist = {};
-  for (int i = 0; i < ll.size(); ++i) {
-    for (int j = 0; j < rl.size(); ++j) {
-      if (cond_->Fit(ll[i], rl[j]))
-        outlist.push_back(Concat(ll[i], rl[j]));
-    }
+  RecordList lla, rla;
+  while (!ll.empty()){
+    lla.insert(lla.end(), ll.begin(), ll.end());
+    ll = GetLeft()->Next();
   }
 
+  while (!rl.empty()){
+    rla.insert(rla.end(), rl.begin(), rl.end());
+    rl = GetRight()->Next();
+  }
+
+
+  RecordList outlist = {};
+  for (int i = 0; i < lla.size(); ++i) {
+    for (int j = 0; j < rla.size(); ++j) {
+      if (cond_->Fit(lla[i], rla[j]))
+        outlist.push_back(Concat(lla[i], rla[j]));
+    }
+  }
+  return outlist;
   // LAB 4 END
 }
 

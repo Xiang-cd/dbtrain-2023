@@ -37,6 +37,7 @@ class Optimizer : public Visitor {
   SystemManager *meta_;
   std::unordered_map<string, Condition *> table_filter_{};
   std::unordered_map<string, int> table_shift_{};
+  std::unordered_map<string, int> table_record_len{};
 };
 
 }  // namespace dbtrain

@@ -22,7 +22,7 @@ class JoinCondition : public Condition {
 
   virtual void Display() const override;
 
- private:
+ public:
   int idx_left_;
   int idx_right_;
 };
