@@ -57,3 +57,11 @@ l43:
 	./build/bin/cli -s < ../dbtrain-lab-test/lab4/test/30_multi_join.sql
 l44:
 	./build/bin/cli -s < ../dbtrain-lab-test/lab4/test/40_large_join.sql
+l50:
+	./build/bin/cli -s < ../dbtrain-lab-test/lab5/test/00_setup.sql
+l51:
+	./build/bin/cli -s < ../dbtrain-lab-test/lab5/test/10_basic_reorder.sql
+l52:
+	./build/bin/cli -s < ../dbtrain-lab-test/lab5/test/20_reorder_with_filter.sql
+l53:
+	./build/bin/cli -s < ../dbtrain-lab-test/lab5/test/30_multi_reorder.sql
