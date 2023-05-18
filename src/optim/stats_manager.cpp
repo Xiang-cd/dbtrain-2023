@@ -67,6 +67,28 @@ bool StatsManager::Analyze(string table_name, int col_idx) {
   // TIPS: 依据实现方式，可以选择跳过已经存在的直方图，或者选择更新直方图
   // TIPS: 基于表存储的数据初始化直方图，建议基础功能中采用默认构造参数
   // LAB 5 BEGIN
+  string stats_name = GetStatsName(table_name, col_idx);
+  if (stats_map_.find(stats_name) == stats_map_.end()){
+    auto his = new Histogram(100);
+    Table *table = SystemManager::GetInstance().GetTable(table_name);
+    TableScanNode *node = new TableScanNode(table);
+    auto record_list = node->Next();
+    vector<double> val_list{};
+    while (record_list.size() > 0) {
+      for (const auto &record : record_list) {
+        auto val = GetRecordValue(record, col_idx);
+        val_list.push_back(val);
+      }
+      for (const auto &record : record_list) delete record;
+      record_list = node->Next();
+    }
+    delete node;
+    his->Init(val_list);
+    stats_map_[stats_name] = his;
+    return true;
+  } else {
+    return false;
+  }
   // LAB 5 END
 }
 

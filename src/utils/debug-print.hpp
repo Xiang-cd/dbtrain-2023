@@ -9,6 +9,7 @@
 //#define Debug
 //#define DebugLAB3
 //#define DebugLAB4
+//#define DebugLAB5
 #include <iostream>
 
 
@@ -61,6 +62,23 @@ void LAB4Print(const T& t, const args&... param) {
 #ifdef DebugLAB4
   std::cout << t ;
   LAB4Print(param...);
+#endif
+}
+
+
+template<typename T>
+void LAB5Print(const T& t) {
+#ifdef DebugLAB5
+  std::cout << t << std::endl;
+#endif
+}
+
+
+template<typename T, typename... args>
+void LAB5Print(const T& t, const args&... param) {
+#ifdef DebugLAB5
+  std::cout << t ;
+  LAB5Print(param...);
 #endif
 }
 

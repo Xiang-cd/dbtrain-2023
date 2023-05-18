@@ -5,6 +5,8 @@
 #include "conditions/conditions.h"
 #include "optim/stats_manager.h"
 #include "record/fields.h"
+#include "utils/debug-print.hpp"
+
 
 namespace dbtrain {
 
@@ -42,7 +44,10 @@ void ProjectNode::Display(int depth) const {
   for (const auto &child : childs_) child->Display(depth + 1);
 }
 
-FilterNode::FilterNode(OperNode *child, Condition *cond) : OperNode({child}), cond_(cond) {}
+FilterNode::FilterNode(OperNode *child, Condition *cond) : OperNode({child}), cond_(cond) {
+  if (dynamic_cast<AndCondition *>(cond) != nullptr)LAB5Print("filter node init with and oncd");
+
+}
 
 FilterNode::~FilterNode() { delete cond_; }
 
@@ -111,6 +116,27 @@ double FilterNode::Cost() {
   // TIPS: 此外，多个属性同时存在过滤条件时简化假设各个属性互相独立
   // TIPS: 利用StatsManager的相关函数可以估计过滤条件所占比例
   // LAB 5 BEGIN
+
+  if (cond_ == nullptr) return childs_[0]->Cost();
+
+
+  auto * single_cond = dynamic_cast<AlgebraCondition *>(cond_);
+  if (single_cond != nullptr){
+    double  lower = -1e10, upper = 1e10;
+    auto idx = UpdateBound(cond_, lower, upper);
+    auto & stmg = StatsManager::GetInstance();
+    GreaterCondition *great_cond = dynamic_cast<GreaterCondition *>(cond_);
+    if (great_cond != nullptr) {
+      return stmg.LowerBound(tname_, idx, lower) * childs_[0]->Cost();
+    }
+    LessCondition *less_cond = dynamic_cast<LessCondition *>(cond_);
+    if (less_cond != nullptr) {
+      return stmg.UpperBound(tname_, idx, upper) * childs_[0]->Cost();
+    }
+    return stmg.RangeBound(tname_, idx, lower, upper) * childs_[0]->Cost();
+  }
+
+
   // LAB 5 END
 }
 
