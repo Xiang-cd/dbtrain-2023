@@ -50,7 +50,6 @@ double Histogram::LowerBound(double lower) const {
   for (int i = index; i < num_buckets_; ++i) {
     greater_num += counts_[i];
   }
-  LAB5Print("Histogram::lowerBound:",  double (greater_num) / double (total_));
   return double (greater_num) / double (total_);
   // LAB 5 END
 }
@@ -69,7 +68,6 @@ double Histogram::UpperBound(double upper) const {
   for (int i = 0; i < index; ++i){
     smaller_num += counts_[i];
   }
-  LAB5Print("Histogram::UpperBound:",  double (smaller_num) / double(total_));
   return double (smaller_num) / double(total_);
   // LAB 5 END
 }
@@ -87,9 +85,7 @@ double Histogram::RangeBound(double lower, double upper) const {
   for (int i = index_low; i < index_high; ++i) {
     mid_num += counts_[i];
   }
-  LAB5Print("Histogram::rangeBound:",  double (mid_num) / double (total_));
   return double (mid_num) / double (total_);
-
   // LAB 5 END
 }
 

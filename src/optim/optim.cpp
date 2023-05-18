@@ -161,9 +161,7 @@ std::any Optimizer::visit(Select *select) {
     }
   }
   LAB5Print("the graph has ", graph.NodeNum(), " nodes");
-//  for (auto x:twc_list){
-//    LAB5Print(x.name, " ", x.cost);
-//  }
+
   // 找到最小值的map name
   auto min_twc = * std::min_element(twc_list.begin(), twc_list.end());
   std::priority_queue<TWC, std::vector<TWC>, tmp2> q;
@@ -171,7 +169,6 @@ std::any Optimizer::visit(Select *select) {
   std::set<string> tree_nodes;
   LAB5Print("ming_twc", min_twc.name, " ", min_twc.cost);
   while ( tree_nodes.size() < graph.NodeNum()){
-
 
     while (tree_nodes.find(q.top().name) != tree_nodes.end()) q.pop();
     LAB5Print("choosing node:", q.top().name, " cost:", q.top().cost);
@@ -202,14 +199,12 @@ std::any Optimizer::visit(Select *select) {
 
           auto rs = uf_set.FindAll(name_r);
           for (auto & name:rs){
-            LAB4Print("r_names:", name);
             table_shift_[name] += table_record_len[root_l];
           }
 
           uf_set.Union(name_l, name_r);
           auto root = uf_set.Find(name_r);
           table_map[root] = join_node;
-          LAB4Print("root:", root);
           table_record_len[root] =  table_record_len[root_r] + table_record_len[root_l];
 
         }
@@ -222,57 +217,6 @@ std::any Optimizer::visit(Select *select) {
     }
   }
 
-
-
-
-  // LAB 5 END
-
-  // TODO: 添加连接算子
-  // TIPS: 遍历 table_filter_ 中的每一个 join_condition
-  // TIPS: 在 table_map 中新建 JoinNode
-  // TIPS: 使用 uf_set 维护表的连接关系
-  // TIPS: 需维护 table_shift_ 中的偏移量，以使投影算子可以正常工作
-  // LAB 4 BEGIN
-//  for (auto & iter:table_filter_){
-//    LAB4Print("Select table filter>", iter.first);
-//    auto cond = dynamic_cast<JoinCondition *>(iter.second);
-//    if (cond != nullptr){
-//      auto union_table_name = iter.first;
-//      size_t found = union_table_name.rfind(delimiter);
-//      auto name_l = union_table_name.substr(0, found);
-//      auto name_r = union_table_name.substr(found + 1, union_table_name.length());
-//      LAB4Print("union_table_name ", union_table_name, "   ", name_l, "  ", name_r );
-//      cond->LeftShift(table_shift_[name_l]);
-//      cond->RightShift(table_shift_[name_r]);
-//      auto root_l = uf_set.Find(name_l);
-//      auto root_r = uf_set.Find(name_r);
-//      LAB4Print("name_l:", name_l, " root_l:", root_l, " shift:",table_shift_[name_l]);
-//      LAB4Print("name_r:", name_r, " root_r:", root_r, " shift:", table_shift_[name_r]);
-//      auto join_node = new JoinNode(table_map[root_l], table_map[root_r], cond);
-//
-//      if (table_record_len.find(root_l) == table_record_len.end()){
-//        table_record_len[root_l] = meta_->GetTable(root_l)->GetColumnSize();
-//      }
-//      if (table_record_len.find(root_r) == table_record_len.end()){
-//        table_record_len[root_r] = meta_->GetTable(root_r)->GetColumnSize();
-//      }
-//
-//
-//      auto rs = uf_set.FindAll(name_r);
-//      for (auto & name:rs){
-//        LAB4Print("r_names:", name);
-//        table_shift_[name] += table_record_len[root_l];
-//      }
-//
-//      uf_set.Union(name_l, name_r);
-//      auto root = uf_set.Find(name_r);
-//      table_map[root] = join_node;
-//      LAB4Print("root:", root);
-//      table_record_len[root] =  table_record_len[root_r] + table_record_len[root_l];
-//
-//    }
-//  }
-  // LAB 4 END
 
   string first_table = uf_set.Find(select->tables_[0]);
 
