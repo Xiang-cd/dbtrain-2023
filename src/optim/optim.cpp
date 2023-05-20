@@ -28,6 +28,7 @@ Optimizer::Optimizer() { meta_ = &SystemManager::GetInstance(); }
 Optimizer::~Optimizer() {}
 
 std::any Optimizer::visit(Insert *insert) {
+  is_select = false;
   RecordList record_list{};
   for (const auto &vals : insert->vals_list_) {
     Record *record = new Record();
@@ -43,6 +44,7 @@ std::any Optimizer::visit(Insert *insert) {
 }
 
 std::any Optimizer::visit(Delete *delete_) {
+  is_select = false;
   string table_name = delete_->table_name_;
   // 初始化全表扫描结点
   OperNode *plan = new TableScanNode(meta_->GetTable(table_name));
@@ -62,6 +64,7 @@ std::any Optimizer::visit(Delete *delete_) {
 }
 
 std::any Optimizer::visit(Update *update) {
+  is_select = false;
   string table_name = update->table_name_;
   // 初始化全表扫描结点
   OperNode *plan = new TableScanNode(meta_->GetTable(table_name));
@@ -92,6 +95,7 @@ std::any Optimizer::visit(Update *update) {
 }
 
 std::any Optimizer::visit(Select *select) {
+  is_select = true;
   auto uf_set = UFSet<string>(select->tables_);
   // 初始化全表扫描结点
   std::unordered_map<string, OperNode *> table_map{};
@@ -99,8 +103,35 @@ std::any Optimizer::visit(Select *select) {
     table_map[table_name] = new TableScanNode(meta_->GetTable(table_name));
     table_shift_[table_name] = 0;
   }
-  // 添加选择条件算子
+
+  for (const auto & col : select->cols_){
+    auto tname = col->table_name_;
+    auto cname = col->col_name_;
+    auto index = meta_->GetTable(tname)->GetColumnIdx(cname);
+    get_actual_idx(tname, index);
+  }
   if (select->condition_ != nullptr) select->condition_->accept(this);
+//  for (auto & pair:table_project){
+//    LAB5Print("table: >>", pair.first);
+//    for (auto & ppari:pair.second){
+//      LAB5Print(ppari.first, "->", ppari.second);
+//    }
+//  }
+  // 在最底层添加投影算子
+  for (const auto & table_name : select->tables_){
+    auto it = table_project.find(table_name);
+    if (it != table_project.end()){
+      auto inv_map = table_project_inv[table_name];
+      std::vector<int> pj_idx;
+      for (int i = 0; i < inv_map.size(); ++i) {
+        assert(inv_map.find(i) != inv_map.end());
+        pj_idx.push_back(inv_map[i]);
+      }
+      table_map[table_name] = new ProjectNode(table_map[table_name], pj_idx);
+    }else assert(false);
+  }
+
+  // 添加选择条件算子
   for (const auto &table_name : select->tables_) {
     auto it = table_filter_.find(table_name);
     if (it != table_filter_.end()) {
@@ -160,18 +191,18 @@ std::any Optimizer::visit(Select *select) {
       graph.AddEdge(name_l, name_r);
     }
   }
-  LAB5Print("the graph has ", graph.NodeNum(), " nodes");
+//  LAB5Print("the graph has ", graph.NodeNum(), " nodes");
 
   // 找到最小值的map name
   auto min_twc = * std::min_element(twc_list.begin(), twc_list.end());
   std::priority_queue<TWC, std::vector<TWC>, tmp2> q;
   q.push(min_twc);
   std::set<string> tree_nodes;
-  LAB5Print("ming_twc", min_twc.name, " ", min_twc.cost);
+//  LAB5Print("ming_twc", min_twc.name, " ", min_twc.cost);
   while ( tree_nodes.size() < graph.NodeNum()){
 
     while (tree_nodes.find(q.top().name) != tree_nodes.end()) q.pop();
-    LAB5Print("choosing node:", q.top().name, " cost:", q.top().cost);
+//    LAB5Print("choosing node:", q.top().name, " cost:", q.top().cost);
     auto selected_name = q.top().name;
     auto selected_tree_name = q.top().tree_name;
     tree_nodes.insert(selected_name);
@@ -183,7 +214,8 @@ std::any Optimizer::visit(Select *select) {
         auto cond = dynamic_cast<JoinCondition *>(iter.second);
         if (cond != nullptr and (iter.first == name_l + delimiter + name_r or
                                  iter.first == name_r + delimiter + name_l)){
-          LAB5Print("uning table name:", iter.first);
+          LAB5Print("uning table name:", iter.first, "lname:", name_l, " rname:", name_r);
+          if (iter.first == name_r + delimiter + name_l) std::swap(cond->idx_left_, cond->idx_right_);
           cond->LeftShift(table_shift_[name_l]);
           cond->RightShift(table_shift_[name_r]);
           auto root_l = uf_set.Find(name_l);
@@ -191,10 +223,10 @@ std::any Optimizer::visit(Select *select) {
           auto join_node = new JoinNode(table_map[root_l], table_map[root_r], cond);
 
           if (table_record_len.find(root_l) == table_record_len.end()){
-            table_record_len[root_l] = meta_->GetTable(root_l)->GetColumnSize();
+            table_record_len[root_l] = table_project[root_l].size();
           }
           if (table_record_len.find(root_r) == table_record_len.end()){
-            table_record_len[root_r] = meta_->GetTable(root_r)->GetColumnSize();
+            table_record_len[root_r] = table_project[root_r].size();
           }
 
           auto rs = uf_set.FindAll(name_r);
@@ -212,7 +244,7 @@ std::any Optimizer::visit(Select *select) {
     }
     for (auto &neighbor: graph.Adjace(selected_name)){
       if (tree_nodes.find(neighbor) != tree_nodes.end()) continue;
-      LAB5Print("inserting:", neighbor, " tree_node:", selected_name);
+//      LAB5Print("inserting:", neighbor, " tree_node:", selected_name);
       q.push({neighbor, selected_name, cost_map[neighbor]});
     }
   }
@@ -230,9 +262,13 @@ std::any Optimizer::visit(Select *select) {
   if (!select->cols_.empty()) {
     vector<int> proj_idxs{};
     for (const auto &col : select->cols_) {
-      int offset = table_shift_[col->table_name_];
-      LAB4Print("SEL project: table:", col->table_name_, " colname:", col->col_name_, " ", offset + meta_->GetTable(col->table_name_)->GetColumnIdx(col->col_name_));
-      proj_idxs.push_back(offset + meta_->GetTable(col->table_name_)->GetColumnIdx(col->col_name_));
+      string tname = col->table_name_;
+      int offset = table_shift_[tname];
+      auto col_idx = meta_->GetTable(tname)->GetColumnIdx(col->col_name_);
+      auto actual_idx = table_project[tname][col_idx];
+      LAB5Print("SEL project: table:", tname, " colname:", col->col_name_,
+                " offset:", offset, " col_idx:", actual_idx);
+      proj_idxs.push_back(offset + actual_idx);
     }
     plan = new ProjectNode(plan, proj_idxs);
   }
@@ -241,13 +277,36 @@ std::any Optimizer::visit(Select *select) {
   return plan;
 }
 
+
+int Optimizer::get_actual_idx(const string & table_name, int col_idx){
+  int actual_col_idx = col_idx;
+  if (not is_select) return actual_col_idx;
+  if (table_project.find(table_name) == table_project.end()){
+    table_project[table_name] = {{col_idx, 0},};
+    table_project_inv[table_name] = {{0, col_idx},};
+    actual_col_idx = 0;
+  } else {
+    auto & project_map = table_project[table_name];
+    auto & project_map_inv = table_project_inv[table_name];
+    if (project_map.find(col_idx) == project_map.end()){
+      actual_col_idx = project_map.size();
+      project_map[col_idx] = actual_col_idx;
+      project_map_inv[actual_col_idx] = col_idx;
+    } else {
+      actual_col_idx = project_map[col_idx];
+    }
+  }
+  return actual_col_idx;
+};
+
 std::any Optimizer::visit(LessConditionNode *cond) {
   // 小于选择条件
   string table_name = cond->col_->table_name_;
   string col_name = cond->col_->col_name_;
   int col_idx = meta_->GetTable(table_name)->GetColumnIdx(col_name);
+  int actual_col_idx = get_actual_idx(table_name, col_idx);
   Field *field = std::any_cast<Field *>(cond->value_->accept(this));
-  Condition *condition = new LessCondition(col_idx, field);
+  Condition *condition = new LessCondition(actual_col_idx, field);
   if (table_filter_.find(table_name) == table_filter_.end()) {
     table_filter_[table_name] = condition;
     condition = nullptr;
@@ -261,8 +320,9 @@ std::any Optimizer::visit(EqualConditionNode *cond) {
   string table_name = cond->col_->table_name_;
   string col_name = cond->col_->col_name_;
   int col_idx = meta_->GetTable(table_name)->GetColumnIdx(col_name);
+  int actual_col_idx = get_actual_idx(table_name, col_idx);
   Field *field = std::any_cast<Field *>(cond->value_->accept(this));
-  Condition *condition = new EqualCondition(col_idx, field);
+  Condition *condition = new EqualCondition(actual_col_idx, field);
   if (table_filter_.find(table_name) == table_filter_.end()) {
     table_filter_[table_name] = condition;
     condition = nullptr;
@@ -276,8 +336,9 @@ std::any Optimizer::visit(GreaterConditionNode *cond) {
   string table_name = cond->col_->table_name_;
   string col_name = cond->col_->col_name_;
   int col_idx = meta_->GetTable(table_name)->GetColumnIdx(col_name);
+  int actual_col_idx = get_actual_idx(table_name, col_idx);
   Field *field = std::any_cast<Field *>(cond->value_->accept(this));
-  Condition *condition = new GreaterCondition(col_idx, field);
+  Condition *condition = new GreaterCondition(actual_col_idx, field);
   if (table_filter_.find(table_name) == table_filter_.end()) {
     table_filter_[table_name] = condition;
     condition = nullptr;
@@ -304,9 +365,12 @@ std::any Optimizer::visit(JoinConditionNode *join_condition) {
   auto col_idx_l = meta_->GetTable(table_name_l)->GetColumnIdx(col_name_l);
   auto col_idx_r = meta_->GetTable(table_name_r)->GetColumnIdx(col_name_r);
 
+  auto actual_idx_l = get_actual_idx(table_name_l, col_idx_l);
+  auto actual_idx_r = get_actual_idx(table_name_r, col_idx_r);
+
   auto table_name = table_name_l + delimiter + table_name_r;
-  LAB4Print("Optimizer::visit(JoinConditionNode>", table_name);
-  Condition *condition = new JoinCondition(col_idx_l, col_idx_r);
+//  LAB5Print("Optimizer::visit(JoinConditionNode>", table_name_l, ":", actual_idx_l," ", table_name_r, ":", actual_idx_r);
+  Condition *condition = new JoinCondition(actual_idx_l, actual_idx_r);
   if (table_filter_.find(table_name) == table_filter_.end()) {
     table_filter_[table_name] = condition;
     //    condition = nullptr;

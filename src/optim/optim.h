@@ -33,11 +33,15 @@ class Optimizer : public Visitor {
   virtual std::any visit(AndConditionNode *) override;
   virtual std::any visit(OrConditionNode *) override;
 
+  int get_actual_idx(const string & table_name, int col_idx);
+  bool is_select;
  private:
   SystemManager *meta_;
   std::unordered_map<string, Condition *> table_filter_{};
   std::unordered_map<string, int> table_shift_{};
   std::unordered_map<string, int> table_record_len{};
+  std::unordered_map<string, std::map<int, int>> table_project{};
+  std::unordered_map<string, std::map<int, int>> table_project_inv{};
 };
 
 }  // namespace dbtrain
