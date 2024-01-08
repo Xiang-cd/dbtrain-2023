@@ -167,11 +167,11 @@ std::any Optimizer::visit(Select *select) {
   std::priority_queue<TWC, std::vector<TWC>, tmp2> q;
   q.push(min_twc);
   std::set<string> tree_nodes;
-  LAB5Print("ming_twc", min_twc.name, " ", min_twc.cost);
+//  LAB5Print("ming_twc", min_twc.name, " ", min_twc.cost);
   while ( tree_nodes.size() < graph.NodeNum()){
 
     while (tree_nodes.find(q.top().name) != tree_nodes.end()) q.pop();
-    LAB5Print("choosing node:", q.top().name, " cost:", q.top().cost);
+//    LAB5Print("choosing node:", q.top().name, " cost:", q.top().cost);
     auto selected_name = q.top().name;
     auto selected_tree_name = q.top().tree_name;
     tree_nodes.insert(selected_name);
@@ -183,7 +183,7 @@ std::any Optimizer::visit(Select *select) {
         auto cond = dynamic_cast<JoinCondition *>(iter.second);
         if (cond != nullptr and (iter.first == name_l + delimiter + name_r or
                                  iter.first == name_r + delimiter + name_l)){
-          LAB5Print("uning table name:", iter.first);
+//          LAB5Print("uning table name:", iter.first);
           cond->LeftShift(table_shift_[name_l]);
           cond->RightShift(table_shift_[name_r]);
           auto root_l = uf_set.Find(name_l);
@@ -212,7 +212,7 @@ std::any Optimizer::visit(Select *select) {
     }
     for (auto &neighbor: graph.Adjace(selected_name)){
       if (tree_nodes.find(neighbor) != tree_nodes.end()) continue;
-      LAB5Print("inserting:", neighbor, " tree_node:", selected_name);
+//      LAB5Print("inserting:", neighbor, " tree_node:", selected_name);
       q.push({neighbor, selected_name, cost_map[neighbor]});
     }
   }
@@ -231,7 +231,8 @@ std::any Optimizer::visit(Select *select) {
     vector<int> proj_idxs{};
     for (const auto &col : select->cols_) {
       int offset = table_shift_[col->table_name_];
-      LAB4Print("SEL project: table:", col->table_name_, " colname:", col->col_name_, " ", offset + meta_->GetTable(col->table_name_)->GetColumnIdx(col->col_name_));
+      LAB5Print("SEL project: table:", col->table_name_, " colname:", col->col_name_,
+                " offset:", offset, " col_idx:", meta_->GetTable(col->table_name_)->GetColumnIdx(col->col_name_));
       proj_idxs.push_back(offset + meta_->GetTable(col->table_name_)->GetColumnIdx(col->col_name_));
     }
     plan = new ProjectNode(plan, proj_idxs);

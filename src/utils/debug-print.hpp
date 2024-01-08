@@ -9,7 +9,7 @@
 //#define Debug
 //#define DebugLAB3
 //#define DebugLAB4
-//#define DebugLAB5
+#define DebugLAB5
 #include <iostream>
 
 
